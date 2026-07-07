@@ -277,6 +277,7 @@ a:focus-visible { outline:2px solid var(--teal); outline-offset:2px; border-radi
     <div class="nav-link" data-view="p8"><span class="nav-num">08</span>Subnotificações</div>
 
     <div class="nav-label" style="margin-top:6px;">Banco de Dados</div>
+    <div class="nav-link" data-view="linkage">Algoritmo de Linkage</div>
     <div class="nav-link" data-view="arq">Pipeline de Classificação</div>
   </div>
 </nav>
@@ -308,6 +309,7 @@ a:focus-visible { outline:2px solid var(--teal); outline-offset:2px; border-radi
       <div class="index-item" data-view="p6"><span class="n">06</span><span class="t">Análise do Linkage</span></div>
       <div class="index-item" data-view="p7"><span class="n">07</span><span class="t">Linha da Vida</span></div>
       <div class="index-item" data-view="p8"><span class="n">08</span><span class="t">Subnotificações</span></div>
+      <div class="index-item" data-view="linkage"><span class="n">BD</span><span class="t">Algoritmo de Linkage</span></div>
       <div class="index-item" data-view="arq"><span class="n">BD</span><span class="t">Pipeline de Classificação</span></div>
     </div>
   </div>
@@ -1003,6 +1005,205 @@ a:focus-visible { outline:2px solid var(--teal); outline-offset:2px; border-radi
 </div>
 </div>
 
+<!-- ══════════════ LINKAGE ALGORITHM ══════════════ -->
+<div id="view-linkage" class="view">
+<div class="page-view">
+  <div class="page-header">
+    <div class="page-badge">BD</div>
+    <h2>Algoritmo de Linkage</h2>
+  </div>
+  <div class="page-intro">
+    <div class="iblock">
+      <h4>O que é?</h4>
+      <p>O linkage é um processo determinístico que identifica a mesma pessoa em diferentes sistemas de saúde (SIM, SINAN, SIH) sem usar um identificador único comum. Ele aplica regras de correspondência progressivamente mais permissivas, usando nome, data de nascimento, Soundex fonético e número de documento. Após cada regra, um fecho transitivo (<code>meio_de_campo()</code>) consolida grupos que se tocam indiretamente.</p>
+    </div>
+    <div class="iblock">
+      <h4>Resultado</h4>
+      <p>Cada registro recebe um <code>par_1</code> — identificador único da pessoa. A coluna <code>par_cX</code> registra qual regra fez a ligação, indicando o nível de confiança do vínculo. Registros que nunca casaram com ninguém também recebem um <code>par_1</code> próprio.</p>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-hd"><span class="stage-num">Diagrama interativo</span><h3>Fluxo de dados — clique em qualquer bloco</h3></div>
+    <div style="padding:1rem 0 0;">
+
+      <style>
+        .lk-phases { display:flex; gap:.75rem; margin-bottom:1.25rem; flex-wrap:wrap; }
+        .lk-pill { display:flex; align-items:center; gap:6px; padding:5px 12px 5px 8px; border-radius:999px; font-size:12px; font-weight:600; border:1px solid currentColor; }
+        .lk-pill .lk-dot { width:8px; height:8px; border-radius:50%; }
+        .lk-navy  { color:#101B7A; border-color:rgba(16,27,122,.3);  background:#E6E8F5; }
+        .lk-navy .lk-dot  { background:#101B7A; }
+        .lk-purple{ color:#534AB7; border-color:rgba(83,74,183,.3);  background:#EEEDFE; }
+        .lk-purple .lk-dot{ background:#534AB7; }
+        .lk-coral { color:#993C1D; border-color:rgba(240,131,115,.4); background:#FAECE7; }
+        .lk-coral .lk-dot { background:#F08373; }
+        .lk-hint { font-size:12px; color:#7C808B; margin-bottom:.75rem; }
+        .lk-detail { margin-top:1rem; border-left:3px solid #101B7A; padding:.9rem 1.2rem; background:#F7F4EE; border-radius:0 6px 6px 0; display:none; }
+        .lk-detail.open { display:block; }
+        .lk-det-ttl { font-size:10.5px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#101B7A; margin-bottom:5px; }
+        .lk-det-txt { font-size:13.5px; color:#4F5360; line-height:1.65; }
+        .lk-det-txt code { font-family:'Consolas','Menlo',monospace; font-size:12px; background:#E8E5DE; padding:1px 4px; border-radius:3px; color:#101B7A; }
+      </style>
+
+      <div class="lk-phases">
+        <div class="lk-pill lk-navy"><span class="lk-dot"></span>Bases e dados</div>
+        <div class="lk-pill lk-purple"><span class="lk-dot"></span>Processamento</div>
+        <div class="lk-pill lk-coral"><span class="lk-dot"></span>Saída</div>
+      </div>
+      <p class="lk-hint">↗ Clique em qualquer bloco para ver detalhes</p>
+
+      <div style="overflow-x:auto;">
+        <svg id="lk-svg" viewBox="0 0 800 360" xmlns="http://www.w3.org/2000/svg"
+             style="width:100%;max-width:900px;display:block;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;">
+          <defs>
+            <marker id="lkarr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto">
+              <path d="M1 1.5L9 5L1 8.5" fill="none" stroke="#8a8a8a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </marker>
+          </defs>
+          <style>
+            .lt12{font-size:12px;font-weight:600}.lt10{font-size:10px;font-weight:500}.lt8{font-size:8.5px}.lt8b{font-size:8.5px;font-weight:600}
+            .lln{stroke:#9a9a9a;stroke-width:1.2;fill:none;marker-end:url(#lkarr)}.lln2{stroke:#9a9a9a;stroke-width:1.2;fill:none}
+            .ldv{stroke:#c8c4b8;stroke-width:0.8;stroke-dasharray:4 3;fill:none}
+            .lhit{fill:transparent;cursor:pointer}.lhit:hover{fill:rgba(16,27,122,0.07)}
+          </style>
+          <rect id="lk-sel" fill="none" stroke="#101B7A" stroke-width="2" stroke-dasharray="5 3" rx="7" opacity="0" pointer-events="none"/>
+          <text class="lt10" x="72"  y="17" text-anchor="middle" fill="#101B7A" font-weight="700" letter-spacing="0.06em">FONTES</text>
+          <text class="lt10" x="234" y="17" text-anchor="middle" fill="#101B7A" font-weight="700" letter-spacing="0.06em">PRÉ-PROCESSAMENTO</text>
+          <text class="lt10" x="385" y="17" text-anchor="middle" fill="#101B7A" font-weight="700" letter-spacing="0.06em">INTEGRAÇÃO</text>
+          <text class="lt10" x="561" y="17" text-anchor="middle" fill="#101B7A" font-weight="700" letter-spacing="0.06em">FASE 2 — LINKAGE</text>
+          <text class="lt10" x="734" y="17" text-anchor="middle" fill="#101B7A" font-weight="700" letter-spacing="0.06em">SAÍDA</text>
+          <line class="ldv" x1="148" y1="24" x2="148" y2="330"/>
+          <line class="ldv" x1="320" y1="24" x2="320" y2="330"/>
+          <line class="ldv" x1="450" y1="24" x2="450" y2="330"/>
+          <line class="ldv" x1="668" y1="24" x2="668" y2="330"/>
+          <rect x="0"   y="24" width="450" height="306" fill="#101B7A" fill-opacity="0.022"/>
+          <rect x="451" y="24" width="216" height="306" fill="#534AB7" fill-opacity="0.022"/>
+          <!-- Fontes -->
+          <g fill="#E6E8F5" stroke="#101B7A" stroke-width="1">
+            <rect x="10" y="47"  width="135" height="44" rx="6"/>
+            <rect x="10" y="131" width="135" height="44" rx="6"/>
+            <rect x="10" y="215" width="135" height="44" rx="6"/>
+          </g>
+          <g class="lt12" fill="#101B7A" text-anchor="middle">
+            <text x="77" y="65">SIM</text>
+            <text x="77" y="149">SINAN</text>
+            <text x="77" y="233">SIH</text>
+          </g>
+          <g class="lt8" fill="#4A6FA5" text-anchor="middle">
+            <text x="77" y="78">óbitos</text>
+            <text x="77" y="162">doenças notificáveis</text>
+            <text x="77" y="246">internações</text>
+          </g>
+          <!-- Pré-processamento -->
+          <g fill="#EEEDFE" stroke="#534AB7" stroke-width="1">
+            <rect x="158" y="34"  width="144" height="70" rx="6"/>
+            <rect x="158" y="118" width="144" height="70" rx="6"/>
+            <rect x="158" y="202" width="144" height="70" rx="6"/>
+          </g>
+          <text class="lt10" x="230" y="55"  text-anchor="middle" fill="#3C3489">limpa · padroniza · Soundex</text>
+          <text class="lt8"  x="230" y="68"  text-anchor="middle" fill="#534AB7">nome_pac · nome_pai · nome_mae</text>
+          <text class="lt8"  x="230" y="80"  text-anchor="middle" fill="#534AB7">endereço · raça · sexo · idade</text>
+          <text class="lt8b" x="230" y="93"  text-anchor="middle" fill="#8078CC">mutate(morreu = 1)</text>
+          <text class="lt10" x="230" y="139" text-anchor="middle" fill="#3C3489">limpa · padroniza · Soundex</text>
+          <text class="lt8"  x="230" y="152" text-anchor="middle" fill="#534AB7">nome_pac · nome_mae</text>
+          <text class="lt8"  x="230" y="165" text-anchor="middle" fill="#534AB7">raça · sexo · idade (SINAN)</text>
+          <text class="lt10" x="230" y="223" text-anchor="middle" fill="#3C3489">limpa · padroniza · Soundex</text>
+          <text class="lt8"  x="230" y="236" text-anchor="middle" fill="#534AB7">nome_pac · nome_mae</text>
+          <text class="lt8"  x="230" y="249" text-anchor="middle" fill="#534AB7">raça · sexo · dias internação</text>
+          <!-- Concat -->
+          <g fill="#E6E8F5" stroke="#101B7A" stroke-width="1">
+            <rect x="330" y="108" width="106" height="90" rx="6"/>
+          </g>
+          <text class="lt10" x="383" y="130" text-anchor="middle" fill="#101B7A" font-weight="700">bind_rows()</text>
+          <text class="lt8"  x="383" y="144" text-anchor="middle" fill="#4A6FA5">SIM + SINAN + SIH</text>
+          <text class="lt8"  x="383" y="157" text-anchor="middle" fill="#4A6FA5">dt_comum · mae_11</text>
+          <text class="lt8"  x="383" y="170" text-anchor="middle" fill="#4A6FA5">dia_nasc · mes_nasc</text>
+          <text class="lt8"  x="383" y="183" text-anchor="middle" fill="#4A6FA5">nu_doc_copia</text>
+          <!-- Linkage steps -->
+          <g fill="#EEEDFE" stroke="#534AB7" stroke-width="1">
+            <rect x="460" y="38"  width="196" height="48" rx="6"/>
+          </g>
+          <text class="lt10" x="558" y="57"  text-anchor="middle" fill="#3C3489" font-weight="700">start_linkage()</text>
+          <text class="lt8"  x="558" y="70"  text-anchor="middle" fill="#534AB7">Regra 1 · nome_pac + dt_nasc</text>
+          <text class="lt8"  x="558" y="82"  text-anchor="middle" fill="#534AB7">atribui par_1 inicial (matching exato)</text>
+          <g fill="#EEEDFE" stroke="#534AB7" stroke-width="1">
+            <rect x="460" y="97"  width="196" height="118" rx="6"/>
+          </g>
+          <text class="lt10" x="558" y="115" text-anchor="middle" fill="#3C3489" font-weight="700">regras_linkage()</text>
+          <text class="lt8"  x="558" y="128" text-anchor="middle" fill="#534AB7">R2 · dt_nasc + mae_sound</text>
+          <text class="lt8"  x="558" y="140" text-anchor="middle" fill="#534AB7">R3 · mae_sound + pai_sound + dt_nasc</text>
+          <text class="lt8"  x="558" y="152" text-anchor="middle" fill="#534AB7">R4 · nome_sound + dt_nasc + nu_doc</text>
+          <text class="lt8"  x="558" y="164" text-anchor="middle" fill="#534AB7">R5 · nome_sound + nu_doc</text>
+          <text class="lt8"  x="558" y="176" text-anchor="middle" fill="#534AB7">R6 · nu_doc</text>
+          <rect x="462" y="184" width="192" height="24" rx="3" fill="#534AB7" fill-opacity="0.11"/>
+          <text class="lt8b" x="558" y="195" text-anchor="middle" fill="#3C3489">↺ meio_de_campo()</text>
+          <text class="lt8"  x="558" y="205" text-anchor="middle" fill="#534AB7">executa após cada regra · fecho transitivo</text>
+          <g fill="#EEEDFE" stroke="#534AB7" stroke-width="1">
+            <rect x="460" y="226" width="196" height="46" rx="6"/>
+          </g>
+          <text class="lt10" x="558" y="245" text-anchor="middle" fill="#3C3489" font-weight="700">finaliza_pareamento()</text>
+          <text class="lt8"  x="558" y="258" text-anchor="middle" fill="#534AB7">par_1 sequencial limpo · remove temporários</text>
+          <text class="lt8"  x="558" y="268" text-anchor="middle" fill="#534AB7">NA → ID próprio para não-pareados</text>
+          <!-- Saída -->
+          <g fill="#FAECE7" stroke="#F08373" stroke-width="1">
+            <rect x="678" y="90"  width="112" height="100" rx="6"/>
+          </g>
+          <text class="lt10" x="734" y="111" text-anchor="middle" fill="#993C1D" font-weight="700">Dataset</text>
+          <text class="lt10" x="734" y="125" text-anchor="middle" fill="#993C1D" font-weight="700">linkado</text>
+          <line x1="690" y1="133" x2="778" y2="133" stroke="#F08373" stroke-opacity="0.4" stroke-width="0.8"/>
+          <text class="lt8"  x="734" y="146" text-anchor="middle" fill="#993C1D">par_1 por pessoa</text>
+          <text class="lt8"  x="734" y="158" text-anchor="middle" fill="#D06040">par_cX → regra que linkou</text>
+          <text class="lt8"  x="734" y="170" text-anchor="middle" fill="#D06040">SIM + SINAN + SIH</text>
+          <text class="lt8"  x="734" y="182" text-anchor="middle" fill="#D06040">integrados</text>
+          <!-- Arrows -->
+          <line class="lln" x1="145" y1="69"  x2="158" y2="69"/>
+          <line class="lln" x1="145" y1="153" x2="158" y2="153"/>
+          <line class="lln" x1="145" y1="237" x2="158" y2="237"/>
+          <line class="lln2" x1="302" y1="69"  x2="322" y2="69"/>
+          <line class="lln2" x1="302" y1="153" x2="322" y2="153"/>
+          <line class="lln2" x1="302" y1="237" x2="322" y2="237"/>
+          <line class="lln2" x1="322" y1="69"  x2="322" y2="237"/>
+          <line class="lln"  x1="322" y1="153" x2="330" y2="153"/>
+          <polyline class="lln2" points="436,153 444,153 444,62 458,62"/>
+          <line class="lln" x1="458" y1="62" x2="460" y2="62"/>
+          <line class="lln" x1="558" y1="86"  x2="558" y2="96"/>
+          <line class="lln" x1="558" y1="215" x2="558" y2="225"/>
+          <polyline class="lln2" points="656,249 664,249 664,140 676,140"/>
+          <line class="lln" x1="676" y1="140" x2="678" y2="140"/>
+          <!-- Hit areas -->
+          <rect class="lhit" x="10"  y="47"  width="135" height="44" rx="6" data-lk="sim"/>
+          <rect class="lhit" x="10"  y="131" width="135" height="44" rx="6" data-lk="sinan"/>
+          <rect class="lhit" x="10"  y="215" width="135" height="44" rx="6" data-lk="sih"/>
+          <rect class="lhit" x="158" y="34"  width="144" height="70" rx="6" data-lk="pre-sim"/>
+          <rect class="lhit" x="158" y="118" width="144" height="70" rx="6" data-lk="pre-sinan"/>
+          <rect class="lhit" x="158" y="202" width="144" height="70" rx="6" data-lk="pre-sih"/>
+          <rect class="lhit" x="330" y="108" width="106" height="90" rx="6" data-lk="concat"/>
+          <rect class="lhit" x="460" y="38"  width="196" height="48" rx="6" data-lk="start"/>
+          <rect class="lhit" x="460" y="97"  width="196" height="118" rx="6" data-lk="regras"/>
+          <rect class="lhit" x="460" y="226" width="196" height="46" rx="6" data-lk="finaliza"/>
+          <rect class="lhit" x="678" y="90"  width="112" height="100" rx="6" data-lk="saida"/>
+          <!-- Legend -->
+          <g transform="translate(10,340)">
+            <rect x="0"   y="0" width="10" height="10" rx="2" fill="#E6E8F5" stroke="#101B7A" stroke-width="0.8"/>
+            <text x="14" y="9" font-size="8" fill="#666">Bases / dados</text>
+            <rect x="110" y="0" width="10" height="10" rx="2" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.8"/>
+            <text x="124" y="9" font-size="8" fill="#666">Processamento</text>
+            <rect x="240" y="0" width="10" height="10" rx="2" fill="#FAECE7" stroke="#F08373" stroke-width="0.8"/>
+            <text x="254" y="9" font-size="8" fill="#666">Saída</text>
+          </g>
+        </svg>
+      </div>
+
+      <div class="lk-detail" id="lk-det">
+        <div class="lk-det-ttl" id="lk-det-ttl"></div>
+        <div class="lk-det-txt" id="lk-det-txt"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
 <!-- ══════════════ ARQUITETURA / PIPELINE ══════════════ -->
 <div id="view-arq" class="view">
 <div class="page-view">
@@ -1111,6 +1312,42 @@ a:focus-visible { outline:2px solid var(--teal); outline-offset:2px; border-radi
 
   // default
   showView('home');
+})();
+
+// ── Linkage diagram interaction ──
+(function() {
+  var LK_INFO = {
+    sim:   { title: 'SIM — Sistema de Informação sobre Mortalidade', html: 'Registros de óbitos. Cada linha representa um óbito com causa, data, dados do paciente e da mãe.' },
+    sinan: { title: 'SINAN — Sistema de Informação de Agravos de Notificação', html: 'Notificações de violência e intoxicação exógena. Cada linha é uma notificação individual.' },
+    sih:   { title: 'SIH — Sistema de Informação Hospitalar', html: 'Registros de internações hospitalares. Cada linha é uma AIH (Autorização de Internação Hospitalar).' },
+    'pre-sim': { title: 'Pré-processamento — SIM', html: '<ul style="margin:0 0 0 1.1rem;line-height:2;font-size:13px;color:#4F5360;"><li><code>limpa_ignorados_sim</code> — Remove valores ignorados/desconhecidos</li><li><code>padroniza_variaveis</code> — Renomeia colunas para padrão do pacote</li><li><code>ajuste_data(DD/MM/YYYY)</code> — Converte datas</li><li><code>copia_nomes</code> — Preserva nomes originais antes de normalizar</li><li><code>ajuste_txt</code> — Remove acentos, maiúsculas, elimina prefixos/sufixos</li><li><code>soundex_linkage(nome_pac, nome_pai, nome_mae)</code> — Código fonético</li><li><code>ajuste_res</code> — Padroniza endereço</li><li><code>drop_duplicados</code> — Remove duplicatas exatas</li><li><code>mutate(morreu = 1)</code> — Marca todos como óbito</li></ul>' },
+    'pre-sinan': { title: 'Pré-processamento — SINAN', html: '<ul style="margin:0 0 0 1.1rem;line-height:2;font-size:13px;color:#4F5360;"><li><code>drop_duplicados_sinan</code></li><li><code>padroniza_variaveis</code></li><li><code>ajuste_data(YYYY-MM-DD)</code></li><li><code>nu_idade_anos_sinan</code> — Calcula idade no formato SINAN</li><li><code>as_char</code> / <code>copia_nomes</code> / <code>ajuste_txt</code></li><li><code>soundex_linkage(nome_pac, nome_mae)</code></li><li><code>ds_raca_sinan</code> / <code>corrige_sg_sexo</code> / <code>faixa_etaria</code></li></ul>' },
+    'pre-sih': { title: 'Pré-processamento — SIH', html: '<ul style="margin:0 0 0 1.1rem;line-height:2;font-size:13px;color:#4F5360;"><li><code>upper_case_char</code> — Maiúsculas</li><li><code>padroniza_variaveis</code> / <code>ajuste_data</code></li><li><code>as_char</code> / <code>copia_nomes</code> / <code>ajuste_txt</code></li><li><code>soundex_linkage(nome_pac, nome_mae)</code></li><li><code>ds_raca_sih</code> / <code>corrige_sg_sexo</code></li><li><code>nu_idade_anos_sih</code> / <code>dias_int_sih</code></li><li><code>faixa_etaria</code></li></ul>' },
+    concat: { title: 'Concatenação — bind_rows()', html: '<pre style="background:#1E2535;color:#C8D6F0;border-radius:6px;padding:.85rem 1rem;font-size:12px;line-height:1.75;overflow-x:auto;">SIM + SIH + SINAN → bind_rows() → concat\nconcat → ajuste_data + atualiza_dt_comum\n       + criar colunas auxiliares (dia_nasc, mes_nasc, mae_11, nu_doc_copia)</pre>' },
+    start: { title: 'Passo 1 — start_linkage(df, variaveis, chave)', html: '<p>Regra 1: matching exato por <code>ds_nome_pac + dt_nasc</code>. Registros que casam recebem o mesmo <code>par_1</code>. Registros sem par ficam com <code>par_1 = NA</code>.</p>' },
+    regras: { title: 'Passo 2 — regras_linkage() — aplicado sequencialmente', html: '<p style="margin-bottom:.75rem;">A cada regra, apenas registros ainda sem <code>par_1</code> participam. <code>meio_de_campo()</code> aplica fecho transitivo ao final de cada regra.</p><table style="width:100%;border-collapse:collapse;font-size:13px;background:#fff;border-radius:6px;border:1px solid #DDE2EC;"><thead style="background:#EDF2F9;"><tr><th style="padding:.5rem .75rem;font-size:10.5px;text-transform:uppercase;color:#2E4F82;border-bottom:1px solid #DDE2EC;">#</th><th style="padding:.5rem .75rem;font-size:10.5px;text-transform:uppercase;color:#2E4F82;border-bottom:1px solid #DDE2EC;">Variáveis</th><th style="padding:.5rem .75rem;font-size:10.5px;text-transform:uppercase;color:#2E4F82;border-bottom:1px solid #DDE2EC;">Descrição</th></tr></thead><tbody><tr><td style="padding:.5rem .75rem;border-bottom:1px solid #E8ECF2;font-weight:700;color:#4A6FA5;">2</td><td style="padding:.5rem .75rem;border-bottom:1px solid #E8ECF2;"><code>dt_nasc</code> + <code>mae_sound</code></td><td style="padding:.5rem .75rem;border-bottom:1px solid #E8ECF2;">Data exata + Soundex da mãe</td></tr><tr><td style="padding:.5rem .75rem;border-bottom:1px solid #E8ECF2;font-weight:700;color:#4A6FA5;">3</td><td style="padding:.5rem .75rem;border-bottom:1px solid #E8ECF2;"><code>mae_sound</code> + <code>pai_sound</code> + <code>dt_nasc</code></td><td style="padding:.5rem .75rem;border-bottom:1px solid #E8ECF2;">Soundex mãe + pai + data</td></tr><tr><td style="padding:.5rem .75rem;border-bottom:1px solid #E8ECF2;font-weight:700;color:#4A6FA5;">4</td><td style="padding:.5rem .75rem;border-bottom:1px solid #E8ECF2;"><code>nome_sound</code> + <code>dt_nasc</code> + <code>nu_doc</code></td><td style="padding:.5rem .75rem;border-bottom:1px solid #E8ECF2;">Soundex nome + data + documento</td></tr><tr><td style="padding:.5rem .75rem;border-bottom:1px solid #E8ECF2;font-weight:700;color:#4A6FA5;">5</td><td style="padding:.5rem .75rem;border-bottom:1px solid #E8ECF2;"><code>nome_sound</code> + <code>nu_doc</code></td><td style="padding:.5rem .75rem;border-bottom:1px solid #E8ECF2;">Soundex nome + documento</td></tr><tr><td style="padding:.5rem .75rem;font-weight:700;color:#4A6FA5;">6</td><td style="padding:.5rem .75rem;"><code>nu_doc</code></td><td style="padding:.5rem .75rem;">Apenas documento</td></tr></tbody></table>' },
+    finaliza: { title: 'Passo 4 — finaliza_pareamento()', html: '<p>Remove colunas temporárias (<code>par_2</code>, <code>par_c1</code>…), converte <code>par_1</code> em ID sequencial limpo. Registros que nunca casaram também recebem ID próprio.</p>' },
+    saida: { title: 'Dataset linkado', html: '<pre style="background:#1E2535;color:#C8D6F0;border-radius:6px;padding:.85rem 1rem;font-size:12px;line-height:1.75;overflow-x:auto;">Após regra 1:  par_1 por nome exato + data\nApós regra 2:  novos pares por Soundex mãe + data\nApós regra 3:  encadeamentos transitivos consolidados\nApós regra 4:  novos pares por Soundex nome + data + doc\nApós regra 5:  novos pares por Soundex nome + doc\nApós regra 6:  novos pares apenas por doc\nFinaliza:      ID sequencial para todos, incluindo não-pareados</pre>' }
+  };
+  var LK_BOXES = {
+    sim:[10,47,135,44], sinan:[10,131,135,44], sih:[10,215,135,44],
+    'pre-sim':[158,34,144,70], 'pre-sinan':[158,118,144,70], 'pre-sih':[158,202,144,70],
+    concat:[330,108,106,90], start:[460,38,196,48], regras:[460,97,196,118],
+    finaliza:[460,226,196,46], saida:[678,90,112,100]
+  };
+  document.getElementById('lk-svg').addEventListener('click', function(e) {
+    var hit = e.target.closest('[data-lk]');
+    if (!hit) return;
+    var key = hit.getAttribute('data-lk');
+    var info = LK_INFO[key]; if (!info) return;
+    document.getElementById('lk-det-ttl').textContent = info.title;
+    document.getElementById('lk-det-txt').innerHTML = info.html;
+    document.getElementById('lk-det').classList.add('open');
+    var b = LK_BOXES[key], r = document.getElementById('lk-sel');
+    r.setAttribute('x', b[0]-3); r.setAttribute('y', b[1]-3);
+    r.setAttribute('width', b[2]+6); r.setAttribute('height', b[3]+6);
+    r.setAttribute('opacity','1');
+  });
 })();
 </script>
 

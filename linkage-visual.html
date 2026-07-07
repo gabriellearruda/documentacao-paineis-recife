@@ -1,0 +1,419 @@
+<title>Fluxo de Linkage — vitallinkage2</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy:         #101B7A;
+    --navy-light:   #E6E8F5;
+    --purple:       #534AB7;
+    --purple-mid:   #3C3489;
+    --purple-light: #EEEDFE;
+    --coral:        #F08373;
+    --coral-deep:   #993C1D;
+    --coral-light:  #FAECE7;
+    --yellow:       #FFCB37;
+    --ink:          #1A1A1A;
+    --text:         #1F2125;
+    --text-2:       #4F5360;
+    --text-3:       #7C808B;
+    --paper:        #fdfbf7;
+    --paper-soft:   #F7F4EE;
+    --border:       rgba(22,36,92,0.13);
+    --font-serif:   Georgia, 'Times New Roman', serif;
+    --font-sans:    system-ui, -apple-system, 'Segoe UI', sans-serif;
+  }
+
+  html { -webkit-font-smoothing: antialiased; }
+
+  body {
+    font-family: var(--font-sans);
+    background: var(--paper);
+    color: var(--text);
+    padding: 0;
+    line-height: 1.55;
+  }
+
+  /* ── Page body ── */
+  .page {
+    max-width: 980px; margin: 0 auto;
+    padding: 2.5rem 2.5rem 5rem;
+  }
+
+  /* ── Diagram ── */
+  .diagram-wrap { overflow-x: auto; }
+
+  /* ── Detail panel ── */
+  .detail {
+    margin-top: 1.25rem;
+    border-left: 3px solid var(--navy);
+    padding: 0.9rem 1.2rem;
+    background: var(--paper-soft);
+    border-radius: 0 6px 6px 0;
+    display: none;
+  }
+  .detail.open { display: block; }
+  .detail-ttl {
+    font-size: 10.5px; font-weight: 700; letter-spacing: 0.09em;
+    text-transform: uppercase; color: var(--navy); margin-bottom: 5px;
+  }
+  .detail-txt { font-size: 13.5px; color: var(--text-2); line-height: 1.65; }
+  .detail-txt code {
+    font-family: 'Consolas', 'Menlo', monospace;
+    font-size: 12px; background: #E8E5DE;
+    padding: 1px 4px; border-radius: 3px; color: var(--navy);
+  }
+
+  /* ── Phase pills ── */
+  .phases {
+    display: flex; gap: 0.75rem; margin-bottom: 1.75rem; flex-wrap: wrap;
+  }
+  .phase-pill {
+    display: flex; align-items: center; gap: 6px;
+    padding: 5px 12px 5px 8px;
+    border-radius: 999px; font-size: 12px; font-weight: 600;
+    border: 1px solid currentColor;
+  }
+  .phase-pill .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+  }
+  .pill-navy  { color: var(--navy);   border-color: rgba(16,27,122,0.3);  background: var(--navy-light); }
+  .pill-navy .dot  { background: var(--navy); }
+  .pill-purple{ color: var(--purple); border-color: rgba(83,74,183,0.3);  background: var(--purple-light); }
+  .pill-purple .dot{ background: var(--purple); }
+  .pill-coral { color: var(--coral-deep); border-color: rgba(240,131,115,0.4); background: var(--coral-light); }
+  .pill-coral .dot { background: var(--coral); }
+
+  .hint {
+    font-size: 12px; color: var(--text-3); margin-bottom: 1rem;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .hint::before {
+    content: '↗';
+    font-size: 11px; opacity: 0.6;
+  }
+</style>
+
+<div class="page" style="padding-left:2.5rem;">
+
+    <div class="phases">
+      <div class="phase-pill pill-navy"><span class="dot"></span>Bases e dados</div>
+      <div class="phase-pill pill-purple"><span class="dot"></span>Processamento</div>
+      <div class="phase-pill pill-coral"><span class="dot"></span>Saída</div>
+    </div>
+
+    <p class="hint">Clique em qualquer bloco para ver detalhes</p>
+
+    <div class="diagram-wrap">
+      <svg viewBox="0 0 800 360" xmlns="http://www.w3.org/2000/svg"
+           style="width:100%;max-width:980px;display:block;
+                  font-family:system-ui,-apple-system,'Segoe UI',sans-serif;">
+
+        <defs>
+          <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5"
+                  markerWidth="5.5" markerHeight="5.5" orient="auto">
+            <path d="M1 1.5L9 5L1 8.5" fill="none" stroke="#8a8a8a"
+                  stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+        </defs>
+
+        <style>
+          .t12 { font-size:12px; font-weight:600; }
+          .t10 { font-size:10px; font-weight:500; }
+          .t8  { font-size:8.5px; }
+          .t8b { font-size:8.5px; font-weight:600; }
+          .ln  { stroke:#9a9a9a; stroke-width:1.2; fill:none; marker-end:url(#arr); }
+          .ln2 { stroke:#9a9a9a; stroke-width:1.2; fill:none; }
+          .dv  { stroke:#c8c4b8; stroke-width:0.8; stroke-dasharray:4 3; fill:none; }
+          .hit { fill:transparent; cursor:pointer; }
+          .hit:hover { fill:rgba(16,27,122,0.05); }
+        </style>
+
+        <!-- Selection highlight (repositioned on click, always on top) -->
+        <rect id="sel-rect" fill="none" stroke="#101B7A" stroke-width="2"
+              stroke-dasharray="5 3" rx="7" opacity="0" pointer-events="none"/>
+
+        <!-- ── Section labels ───────────────────────────── -->
+        <text class="t10" x="72"  y="17" text-anchor="middle" fill="#101B7A" font-weight="700" letter-spacing="0.06em">FONTES</text>
+        <text class="t10" x="234" y="17" text-anchor="middle" fill="#101B7A" font-weight="700" letter-spacing="0.06em">PRÉ-PROCESSAMENTO</text>
+        <text class="t10" x="385" y="17" text-anchor="middle" fill="#101B7A" font-weight="700" letter-spacing="0.06em">INTEGRAÇÃO</text>
+        <text class="t10" x="561" y="17" text-anchor="middle" fill="#101B7A" font-weight="700" letter-spacing="0.06em">FASE 2 — LINKAGE</text>
+        <text class="t10" x="734" y="17" text-anchor="middle" fill="#101B7A" font-weight="700" letter-spacing="0.06em">SAÍDA</text>
+
+        <!-- ── Dividers ──────────────────────────────────── -->
+        <line class="dv" x1="148" y1="24" x2="148" y2="330"/>
+        <line class="dv" x1="320" y1="24" x2="320" y2="330"/>
+        <line class="dv" x1="450" y1="24" x2="450" y2="330"/>
+        <line class="dv" x1="668" y1="24" x2="668" y2="330"/>
+
+        <!-- ── FASE 1 background ─────────────────────────── -->
+        <rect x="0" y="24" width="450" height="306" fill="#101B7A" fill-opacity="0.022"/>
+
+        <!-- ── FASE 2 background ─────────────────────────── -->
+        <rect x="451" y="24" width="216" height="306" fill="#534AB7" fill-opacity="0.022"/>
+
+        <!-- ─── FONTE DATABASES ──────────────────────────── -->
+        <g fill="#E6E8F5" stroke="#101B7A" stroke-width="1">
+          <rect x="10"  y="47"  width="135" height="44" rx="6"/>
+          <rect x="10"  y="131" width="135" height="44" rx="6"/>
+          <rect x="10"  y="215" width="135" height="44" rx="6"/>
+        </g>
+        <g class="t12" fill="#101B7A" text-anchor="middle">
+          <text x="77" y="65">SIM</text>
+          <text x="77" y="149">SINAN</text>
+          <text x="77" y="233">SIH</text>
+        </g>
+        <g class="t8" fill="#4A6FA5" text-anchor="middle">
+          <text x="77" y="78">óbitos</text>
+          <text x="77" y="162">doenças notificáveis</text>
+          <text x="77" y="246">internações</text>
+        </g>
+
+        <!-- ─── PREPROCESSING ────────────────────────────── -->
+        <g fill="#EEEDFE" stroke="#534AB7" stroke-width="1">
+          <rect x="158" y="34"  width="144" height="70" rx="6"/>
+          <rect x="158" y="118" width="144" height="70" rx="6"/>
+          <rect x="158" y="202" width="144" height="70" rx="6"/>
+        </g>
+        <!-- SIM -->
+        <text class="t10" x="230" y="55"  text-anchor="middle" fill="#3C3489">limpa · padroniza · Soundex</text>
+        <text class="t8"  x="230" y="68"  text-anchor="middle" fill="#534AB7">nome_pac · nome_pai · nome_mae</text>
+        <text class="t8"  x="230" y="80"  text-anchor="middle" fill="#534AB7">endereço · raça · sexo · idade</text>
+        <text class="t8b" x="230" y="93"  text-anchor="middle" fill="#8078CC">mutate(morreu = 1)</text>
+        <!-- SINAN -->
+        <text class="t10" x="230" y="139" text-anchor="middle" fill="#3C3489">limpa · padroniza · Soundex</text>
+        <text class="t8"  x="230" y="152" text-anchor="middle" fill="#534AB7">nome_pac · nome_mae</text>
+        <text class="t8"  x="230" y="165" text-anchor="middle" fill="#534AB7">raça · sexo · idade (SINAN)</text>
+        <!-- SIH -->
+        <text class="t10" x="230" y="223" text-anchor="middle" fill="#3C3489">limpa · padroniza · Soundex</text>
+        <text class="t8"  x="230" y="236" text-anchor="middle" fill="#534AB7">nome_pac · nome_mae</text>
+        <text class="t8"  x="230" y="249" text-anchor="middle" fill="#534AB7">raça · sexo · dias internação</text>
+
+        <!-- ─── CONCAT ────────────────────────────────────── -->
+        <g fill="#E6E8F5" stroke="#101B7A" stroke-width="1">
+          <rect x="330" y="108" width="106" height="90" rx="6"/>
+        </g>
+        <text class="t10" x="383" y="130" text-anchor="middle" fill="#101B7A" font-weight="700">bind_rows()</text>
+        <text class="t8"  x="383" y="144" text-anchor="middle" fill="#4A6FA5">SIM + SINAN + SIH</text>
+        <text class="t8"  x="383" y="157" text-anchor="middle" fill="#4A6FA5">dt_comum · mae_11</text>
+        <text class="t8"  x="383" y="170" text-anchor="middle" fill="#4A6FA5">dia_nasc · mes_nasc</text>
+        <text class="t8"  x="383" y="183" text-anchor="middle" fill="#4A6FA5">nu_doc_copia</text>
+
+        <!-- ─── LINKAGE STEPS ─────────────────────────────── -->
+
+        <!-- start_linkage -->
+        <g fill="#EEEDFE" stroke="#534AB7" stroke-width="1">
+          <rect x="460" y="38" width="196" height="48" rx="6"/>
+        </g>
+        <text class="t10" x="558" y="57"  text-anchor="middle" fill="#3C3489" font-weight="700">start_linkage()</text>
+        <text class="t8"  x="558" y="70"  text-anchor="middle" fill="#534AB7">Regra 1 · nome_pac + dt_nasc</text>
+        <text class="t8"  x="558" y="82"  text-anchor="middle" fill="#534AB7">atribui par_1 inicial (matching exato)</text>
+
+        <!-- regras_linkage -->
+        <g fill="#EEEDFE" stroke="#534AB7" stroke-width="1">
+          <rect x="460" y="97" width="196" height="118" rx="6"/>
+        </g>
+        <text class="t10" x="558" y="115" text-anchor="middle" fill="#3C3489" font-weight="700">regras_linkage()</text>
+        <text class="t8"  x="558" y="128" text-anchor="middle" fill="#534AB7">R2 · dt_nasc + mae_sound</text>
+        <text class="t8"  x="558" y="140" text-anchor="middle" fill="#534AB7">R3 · mae_sound + pai_sound + dt_nasc</text>
+        <text class="t8"  x="558" y="152" text-anchor="middle" fill="#534AB7">R4 · nome_sound + dt_nasc + nu_doc</text>
+        <text class="t8"  x="558" y="164" text-anchor="middle" fill="#534AB7">R5 · nome_sound + nu_doc</text>
+        <text class="t8"  x="558" y="176" text-anchor="middle" fill="#534AB7">R6 · nu_doc</text>
+        <!-- meio_de_campo band -->
+        <rect x="462" y="184" width="192" height="24" rx="3" fill="#534AB7" fill-opacity="0.11"/>
+        <text class="t8b" x="558" y="195" text-anchor="middle" fill="#3C3489">↺ meio_de_campo()</text>
+        <text class="t8"  x="558" y="205" text-anchor="middle" fill="#534AB7">executa após cada regra · closure transitivo</text>
+
+        <!-- finaliza_pareamento -->
+        <g fill="#EEEDFE" stroke="#534AB7" stroke-width="1">
+          <rect x="460" y="226" width="196" height="46" rx="6"/>
+        </g>
+        <text class="t10" x="558" y="245" text-anchor="middle" fill="#3C3489" font-weight="700">finaliza_pareamento()</text>
+        <text class="t8"  x="558" y="258" text-anchor="middle" fill="#534AB7">par_1 sequencial limpo · remove temporários</text>
+        <text class="t8"  x="558" y="268" text-anchor="middle" fill="#534AB7">NA → ID próprio para não-pareados</text>
+
+        <!-- ─── SAÍDA ─────────────────────────────────────── -->
+        <g fill="#FAECE7" stroke="#F08373" stroke-width="1">
+          <rect x="678" y="90" width="112" height="100" rx="6"/>
+        </g>
+        <text class="t10" x="734" y="111" text-anchor="middle" fill="#993C1D" font-weight="700">Dataset</text>
+        <text class="t10" x="734" y="125" text-anchor="middle" fill="#993C1D" font-weight="700">linkado</text>
+        <line x1="690" y1="133" x2="778" y2="133" stroke="#F08373" stroke-opacity="0.4" stroke-width="0.8"/>
+        <text class="t8"  x="734" y="146" text-anchor="middle" fill="#993C1D">par_1 por pessoa</text>
+        <text class="t8"  x="734" y="158" text-anchor="middle" fill="#D06040">par_cX → regra que linkou</text>
+        <text class="t8"  x="734" y="170" text-anchor="middle" fill="#D06040">SIM + SINAN + SIH</text>
+        <text class="t8"  x="734" y="182" text-anchor="middle" fill="#D06040">integrados</text>
+
+        <!-- ─── ARROWS ────────────────────────────────────── -->
+
+        <!-- DB → preprocessing (straight — centers aligned) -->
+        <line class="ln" x1="145" y1="69"  x2="158" y2="69"/>
+        <line class="ln" x1="145" y1="153" x2="158" y2="153"/>
+        <line class="ln" x1="145" y1="237" x2="158" y2="237"/>
+
+        <!-- preprocessing → converging to concat -->
+        <line class="ln2" x1="302" y1="69"  x2="322" y2="69"/>
+        <line class="ln2" x1="302" y1="153" x2="322" y2="153"/>
+        <line class="ln2" x1="302" y1="237" x2="322" y2="237"/>
+        <line class="ln2" x1="322" y1="69"  x2="322" y2="237"/>
+        <line class="ln"  x1="322" y1="153" x2="330" y2="153"/>
+
+        <!-- concat → start_linkage (bend up) -->
+        <polyline class="ln2" points="436,153 444,153 444,62 458,62"/>
+        <line class="ln" x1="458" y1="62" x2="460" y2="62"/>
+
+        <!-- start_linkage → regras -->
+        <line class="ln" x1="558" y1="86" x2="558" y2="96"/>
+
+        <!-- regras → finaliza -->
+        <line class="ln" x1="558" y1="215" x2="558" y2="225"/>
+
+        <!-- finaliza → saída (bend right+up) -->
+        <polyline class="ln2" points="656,249 664,249 664,140 676,140"/>
+        <line class="ln" x1="676" y1="140" x2="678" y2="140"/>
+
+        <!-- ─── CLICKABLE HIT AREAS ──────────────────────── -->
+        <rect class="hit" x="10"  y="47"  width="135" height="44" rx="6" onclick="show('sim')"/>
+        <rect class="hit" x="10"  y="131" width="135" height="44" rx="6" onclick="show('sinan')"/>
+        <rect class="hit" x="10"  y="215" width="135" height="44" rx="6" onclick="show('sih')"/>
+        <rect class="hit" x="158" y="34"  width="144" height="70" rx="6" onclick="show('pre-sim')"/>
+        <rect class="hit" x="158" y="118" width="144" height="70" rx="6" onclick="show('pre-sinan')"/>
+        <rect class="hit" x="158" y="202" width="144" height="70" rx="6" onclick="show('pre-sih')"/>
+        <rect class="hit" x="330" y="108" width="106" height="90" rx="6" onclick="show('concat')"/>
+        <rect class="hit" x="460" y="38"  width="196" height="48" rx="6" onclick="show('start')"/>
+        <rect class="hit" x="460" y="97"  width="196" height="118" rx="6" onclick="show('regras')"/>
+        <rect class="hit" x="460" y="226" width="196" height="46" rx="6" onclick="show('finaliza')"/>
+        <rect class="hit" x="678" y="90"  width="112" height="100" rx="6" onclick="show('saida')"/>
+
+        <!-- ─── LEGEND ───────────────────────────────────── -->
+        <g transform="translate(10,340)">
+          <rect x="0"   y="0" width="10" height="10" rx="2" fill="#E6E8F5" stroke="#101B7A" stroke-width="0.8"/>
+          <text x="14" y="9" font-size="8" fill="#666">Bases / dados</text>
+          <rect x="110" y="0" width="10" height="10" rx="2" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.8"/>
+          <text x="124" y="9" font-size="8" fill="#666">Processamento</text>
+          <rect x="240" y="0" width="10" height="10" rx="2" fill="#FAECE7" stroke="#F08373" stroke-width="0.8"/>
+          <text x="254" y="9" font-size="8" fill="#666">Saída</text>
+        </g>
+
+      </svg>
+    </div>
+
+    <!-- ── Detail panel ── -->
+    <div class="detail" id="det">
+      <div class="detail-ttl" id="det-ttl"></div>
+      <div class="detail-txt" id="det-txt"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const INFO = {
+  sim: {
+    title: 'SIM — Sistema de Informação sobre Mortalidade',
+    html: 'Registros de óbitos.'
+  },
+  sinan: {
+    title: 'SINAN — Sistema de Informação de Agravos de Notificação',
+    html: 'Notificações de doenças e agravos de saúde.'
+  },
+  sih: {
+    title: 'SIH — Sistema de Informação Hospitalar',
+    html: 'Registros de internações hospitalares.'
+  },
+  'pre-sim': {
+    title: 'Pré-processamento — SIM',
+    html: `<ul style="margin:0 0 0 1.1rem;line-height:2;font-size:13px;color:#4F5360;"><li><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">limpa_ignorados_sim</code> — Remove valores "IGNORADO", "DESCONHECIDO" e similares</li><li><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">padroniza_variaveis</code> — Renomeia colunas para o padrão do pacote</li><li><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">ajuste_data(DD/MM/YYYY)</code> — Converte colunas de data para tipo Date</li><li><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">ano_sim</code> — Extrai o ano do óbito como coluna auxiliar</li><li><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">as_char</code> — Converte todas as colunas para character</li><li><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">copia_nomes</code> — Cria cópia das colunas de nome (preserva original)</li><li><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">ajuste_txt</code> — Remove acentos, converte para maiúsculas, elimina prefixos/sufixos/conectivos</li><li><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">gemelar</code> — Detecta e marca registros de gêmeos</li><li><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">soundex_linkage(nome_pac)</code> — Código fonético do nome do paciente</li><li><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">soundex_linkage(nome_pai)</code> — Código fonético do nome do pai</li><li><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">soundex_linkage(nome_mae)</code> — Código fonético do nome da mãe</li><li><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">ajuste_res</code> — Padroniza variáveis de endereço</li><li><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">soundex_linkage(bairro, rua, comple)</code> — Código fonético dos campos de endereço</li><li><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">drop_duplicados</code> — Remove registros exatamente duplicados</li><li><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">ds_raca_sim</code> — Decodifica campo de raça/etnia</li><li><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">corrige_sg_sexo</code> — Corrige campo de sexo</li><li><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">nu_idade_anos</code> — Calcula idade em anos</li><li><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">faixa_etaria</code> — Cria faixas etárias</li><li><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">mutate(morreu = 1)</code> — Marca todos os registros como óbito</li></ul>`
+  },
+  'pre-sinan': {
+    title: 'Pré-processamento — SINAN',
+    html: `<ul style="margin:0 0 0 1.1rem;line-height:2;font-size:13px;color:#4F5360;"><li><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">drop_duplicados_sinan</code> — Remove registros exatamente duplicados</li><li><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">padroniza_variaveis</code> — Renomeia colunas para o padrão do pacote</li><li><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">ajuste_data(YYYY-MM-DD)</code> — Converte colunas de data para tipo Date</li><li><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">ano_sinan</code> — Extrai o ano de nascimento como coluna auxiliar</li><li><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">nu_idade_anos_sinan</code> — Calcula idade em anos no formato do SINAN</li><li><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">as_char</code> — Converte todas as colunas para character</li><li><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">copia_nomes</code> — Cria cópia das colunas de nome (preserva original)</li><li><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">ajuste_txt</code> — Remove acentos, converte para maiúsculas, elimina prefixos/sufixos/conectivos</li><li><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">gemelar</code> — Detecta e marca registros de gêmeos</li><li><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">soundex_linkage(nome_pac)</code> — Código fonético do nome do paciente</li><li><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">soundex_linkage(nome_mae)</code> — Código fonético do nome da mãe</li><li><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">ds_raca_sinan</code> — Decodifica campo de raça/etnia</li><li><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">corrige_sg_sexo</code> — Corrige campo de sexo</li><li><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">faixa_etaria</code> — Cria faixas etárias</li></ul>`
+  },
+  'pre-sih': {
+    title: 'Pré-processamento — SIH',
+    html: `<ul style="margin:0 0 0 1.1rem;line-height:2;font-size:13px;color:#4F5360;"><li><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">upper_case_char</code> — Converte todos os campos de texto para maiúsculas</li><li><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">padroniza_variaveis</code> — Renomeia colunas para o padrão do pacote</li><li><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">ajuste_data(YYYY-MM-DD)</code> — Converte colunas de data para tipo Date</li><li><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">ano_sih</code> — Extrai o ano da internação como coluna auxiliar</li><li><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">as_char</code> — Converte todas as colunas para character</li><li><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">copia_nomes</code> — Cria cópia das colunas de nome (preserva original)</li><li><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">ajuste_txt</code> — Remove acentos, converte para maiúsculas, elimina prefixos/sufixos/conectivos</li><li><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">gemelar</code> — Detecta e marca registros de gêmeos</li><li><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">soundex_linkage(nome_pac)</code> — Código fonético do nome do paciente</li><li><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">soundex_linkage(nome_mae)</code> — Código fonético do nome da mãe</li><li><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">ds_raca_sih</code> — Decodifica campo de raça/etnia</li><li><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">corrige_sg_sexo</code> — Corrige campo de sexo</li><li><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">nu_idade_anos_sih</code> — Calcula idade em anos no formato do SIH</li><li><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">faixa_etaria</code> — Cria faixas etárias</li><li><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">dias_int_sih</code> — Calcula número de dias de internação</li></ul>`
+  },
+  concat: {
+    title: 'Concatenação — bind_rows()',
+    html: `<pre style="background:#1E2535;color:#C8D6F0;border-radius:6px;padding:0.85rem 1rem;font-size:12px;line-height:1.75;overflow-x:auto;white-space:pre;">SIM + SIH + SINAN → bind_rows() → concat
+concat → ajuste_data + atualiza_dt_comum
+       + criar colunas auxiliares (dia_nasc, mes_nasc, mae_11, nu_doc_copia)</pre>`
+  },
+  start: {
+    title: 'Passo 1 — start_linkage(df, variaveis, chave)',
+    html: `<p style="margin-bottom:0.5rem;">Aplica a primeira regra de matching.</p>
+<pre style="background:#1E2535;color:#C8D6F0;border-radius:6px;padding:0.85rem 1rem;font-size:12px;line-height:1.75;overflow-x:auto;white-space:pre;margin-bottom:0.75rem;">Variáveis: ds_nome_pac + dt_nasc
+Chave:     ds_nome_pac</pre>
+<div style="overflow-x:auto;border-radius:6px;border:1px solid #DDE2EC;margin-bottom:0.75rem;"><table style="width:100%;border-collapse:collapse;font-size:13px;background:#fff;"><thead style="background:#EDF2F9;"><tr><th style="padding:0.5rem 0.75rem;font-size:10.5px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:#2E4F82;border-bottom:1px solid #DDE2EC;">id</th><th style="padding:0.5rem 0.75rem;font-size:10.5px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:#2E4F82;border-bottom:1px solid #DDE2EC;">base</th><th style="padding:0.5rem 0.75rem;font-size:10.5px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:#2E4F82;border-bottom:1px solid #DDE2EC;">nome</th><th style="padding:0.5rem 0.75rem;font-size:10.5px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:#2E4F82;border-bottom:1px solid #DDE2EC;">dt_nasc</th><th style="padding:0.5rem 0.75rem;font-size:10.5px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:#2E4F82;border-bottom:1px solid #DDE2EC;">nome_mae</th><th style="padding:0.5rem 0.75rem;font-size:10.5px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:#2E4F82;border-bottom:1px solid #DDE2EC;">par_1</th></tr></thead><tbody><tr><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;font-weight:700;color:#4A6FA5;">1</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;">SIM</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;">JOAO SILVA</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;">1980-03-10</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;">MARIA SILVA</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;"><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">101</code></td></tr><tr><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;font-weight:700;color:#4A6FA5;">2</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;">SINAN</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;">JOAO SILVA</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;">1980-03-10</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;">MARIA SILVA</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;"><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">101</code></td></tr><tr><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;font-weight:700;color:#4A6FA5;">3</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;">SIM</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;">ANA SOUZA</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;">1975-07-22</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;">LUCIA SOUZA</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;color:#999;">NA</td></tr><tr><td style="padding:0.5rem 0.75rem;font-weight:700;color:#4A6FA5;">4</td><td style="padding:0.5rem 0.75rem;">SINAN</td><td style="padding:0.5rem 0.75rem;">ANA SOUZA</td><td style="padding:0.5rem 0.75rem;">1975-07-25</td><td style="padding:0.5rem 0.75rem;">LUCIA SOUZA</td><td style="padding:0.5rem 0.75rem;color:#999;">NA</td></tr></tbody></table></div>
+<p style="margin-bottom:0.5rem;">Registros 1 e 2 casaram — mesmo nome e mesma data. Registros 3 e 4 não casaram: a data tem 3 dias de diferença (erro de digitação). Ficam com <code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">par_1 = NA</code>.</p>
+<p style="margin-bottom:0.3rem;">A lógica interna:</p>
+<ul style="margin:0 0 0 1.25rem;line-height:1.9;font-size:13px;color:#4F5360;"><li>Filtra registros sem NA nas variáveis escolhidas</li><li>Agrupa por igualdade exata dos valores</li><li>Descarta grupos com apenas 1 registro</li><li>Atribui <code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">par_1</code> (ID do grupo) para quem casou</li></ul>`
+  },
+  regras: {
+    title: 'Passo 2 — regras_linkage() — aplicado sequencialmente',
+    html: `<p style="margin-bottom:0.75rem;">A cada regra, registros que já têm <code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">par_1</code> mantêm seu ID. Apenas os que ainda estão sem par entram na tentativa de matching. <code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">meio_de_campo()</code> é chamado automaticamente ao final de cada regra.</p>
+<div style="overflow-x:auto;border-radius:6px;border:1px solid #DDE2EC;margin-bottom:0.75rem;"><table style="width:100%;border-collapse:collapse;font-size:13px;background:#fff;"><thead style="background:#EDF2F9;"><tr><th style="padding:0.5rem 0.75rem;font-size:10.5px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:#2E4F82;border-bottom:1px solid #DDE2EC;">#</th><th style="padding:0.5rem 0.75rem;font-size:10.5px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:#2E4F82;border-bottom:1px solid #DDE2EC;">Variáveis</th><th style="padding:0.5rem 0.75rem;font-size:10.5px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:#2E4F82;border-bottom:1px solid #DDE2EC;">Descrição</th></tr></thead><tbody><tr><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;font-weight:700;color:#4A6FA5;">2</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;"><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">dt_nasc</code> + <code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">ds_nome_mae_sound</code></td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;">Data exata + Soundex da mãe — tolera variações ortográficas no nome da mãe</td></tr><tr><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;font-weight:700;color:#4A6FA5;">3</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;"><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">ds_nome_mae_sound</code> + <code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">ds_nome_pai_sound</code> + <code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">dt_nasc</code></td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;">Soundex mãe + pai + data exata — captura encadeamentos transitivos não resolvidos</td></tr><tr><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;font-weight:700;color:#4A6FA5;">4</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;"><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">ds_nome_pac_sound</code> + <code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">dt_nasc</code> + <code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">nu_doc</code></td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;">Soundex do paciente + data exata + número de documento</td></tr><tr><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;font-weight:700;color:#4A6FA5;">5</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;"><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">ds_nome_pac_sound</code> + <code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">nu_doc</code></td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;">Soundex do paciente + documento — sem exigir data exata</td></tr><tr><td style="padding:0.5rem 0.75rem;font-weight:700;color:#4A6FA5;">6</td><td style="padding:0.5rem 0.75rem;"><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">nu_doc</code></td><td style="padding:0.5rem 0.75rem;">Apenas número de documento — mais permissiva</td></tr></tbody></table></div>
+<p style="margin-bottom:0.5rem;">Por exemplo, registros 3 e 4 têm a mesma mãe (LUCIA SOUZA) e o mesmo ano (1975) → casam agora. A coluna <code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">par_c2</code> registra que foi a regra 2 que ligou 3 e 4 — assim você sabe depois o nível de confiança de cada link.</p>
+<div style="overflow-x:auto;border-radius:6px;border:1px solid #DDE2EC;"><table style="width:100%;border-collapse:collapse;font-size:13px;background:#fff;"><thead style="background:#EDF2F9;"><tr><th style="padding:0.5rem 0.75rem;font-size:10.5px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:#2E4F82;border-bottom:1px solid #DDE2EC;">id</th><th style="padding:0.5rem 0.75rem;font-size:10.5px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:#2E4F82;border-bottom:1px solid #DDE2EC;">base</th><th style="padding:0.5rem 0.75rem;font-size:10.5px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:#2E4F82;border-bottom:1px solid #DDE2EC;">nome</th><th style="padding:0.5rem 0.75rem;font-size:10.5px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:#2E4F82;border-bottom:1px solid #DDE2EC;">dt_nasc</th><th style="padding:0.5rem 0.75rem;font-size:10.5px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:#2E4F82;border-bottom:1px solid #DDE2EC;">nome_mae</th><th style="padding:0.5rem 0.75rem;font-size:10.5px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:#2E4F82;border-bottom:1px solid #DDE2EC;">par_1</th><th style="padding:0.5rem 0.75rem;font-size:10.5px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:#2E4F82;border-bottom:1px solid #DDE2EC;">par_c1</th><th style="padding:0.5rem 0.75rem;font-size:10.5px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:#2E4F82;border-bottom:1px solid #DDE2EC;">par_c2</th></tr></thead><tbody><tr><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;font-weight:700;color:#4A6FA5;">1</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;">SIM</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;">JOAO SILVA</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;">1980-03-10</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;">MARIA SILVA</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;"><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">101</code></td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;"><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">101</code></td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;color:#999;">—</td></tr><tr><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;font-weight:700;color:#4A6FA5;">2</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;">SINAN</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;">JOAO SILVA</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;">1980-03-10</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;">MARIA SILVA</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;"><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">101</code></td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;"><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">101</code></td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;color:#999;">—</td></tr><tr><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;font-weight:700;color:#4A6FA5;">3</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;">SIM</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;">ANA SOUZA</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;">1975-07-22</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;">LUCIA SOUZA</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;"><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">102</code></td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;color:#999;">—</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #E8ECF2;"><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">102</code></td></tr><tr><td style="padding:0.5rem 0.75rem;font-weight:700;color:#4A6FA5;">4</td><td style="padding:0.5rem 0.75rem;">SINAN</td><td style="padding:0.5rem 0.75rem;">ANA SOUZA</td><td style="padding:0.5rem 0.75rem;">1975-07-25</td><td style="padding:0.5rem 0.75rem;">LUCIA SOUZA</td><td style="padding:0.5rem 0.75rem;"><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">102</code></td><td style="padding:0.5rem 0.75rem;color:#999;">—</td><td style="padding:0.5rem 0.75rem;"><code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">102</code></td></tr></tbody></table></div>`
+  },
+  finaliza: {
+    title: 'Passo 4 — finaliza_pareamento()',
+    html: `<p style="margin-bottom:0.75rem;">Remove as colunas temporárias de trabalho (<code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">par_2</code>, <code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">par_c1</code>, <code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">par_c2</code>…), converte <code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">par_1</code> em um ID sequencial limpo e atribui um identificador único para registros que nunca casaram com ninguém (<code style="background:#EDF2F9;color:#2E4F82;padding:1px 4px;border-radius:3px;font-size:11px;">par_1 = NA</code>).</p>`
+  },
+  saida: {
+    title: 'Dataset linkado — Estado de par_1 ao longo do processo',
+    html: `<pre style="background:#1E2535;color:#C8D6F0;border-radius:6px;padding:0.85rem 1rem;font-size:12px;line-height:1.75;overflow-x:auto;white-space:pre;">Início:        par_1 = NA para todos
+
+Após regra 1:  par_1 = 101 → registros que casaram por nome exato + data
+               par_1 = NA  → todos os demais
+
+Após regra 2:  par_1 = 101 → mantidos da regra 1
+               par_1 = 102 → novos pares por Soundex mãe + pai + data
+               par_1 = NA  → quem ainda não casou
+
+Após regra 3:  encadeamentos transitivos consolidados
+               grupos que se tocavam indiretamente viram um só par_1
+
+Após regra 4:  par_1 = 103 → novos pares por Soundex nome + data + documento
+
+Após regra 5:  par_1 = 104 → novos pares por Soundex nome + documento
+
+Após regra 6:  par_1 = 105 → novos pares apenas por documento
+               par_1 = NA  → quem nunca casou em nenhuma regra
+
+Após finaliza_pareamento:
+               par_1 limpo e sequencial para todos
+               quem nunca casou também recebe ID próprio</pre>`
+  }
+};
+
+const BOXES = {
+  sim:       [10,  47,  135, 44],
+  sinan:     [10,  131, 135, 44],
+  sih:       [10,  215, 135, 44],
+  'pre-sim': [158, 34,  144, 70],
+  'pre-sinan':[158,118, 144, 70],
+  'pre-sih': [158, 202, 144, 70],
+  concat:    [330, 108, 106, 90],
+  start:     [460, 38,  196, 48],
+  regras:    [460, 97,  196, 118],
+  finaliza:  [460, 226, 196, 46],
+  saida:     [678, 90,  112, 100]
+};
+
+function show(key) {
+  const d = INFO[key];
+  const panel = document.getElementById('det');
+  document.getElementById('det-ttl').textContent = d.title;
+  document.getElementById('det-txt').innerHTML = d.html;
+  panel.classList.add('open');
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  const [x, y, w, h] = BOXES[key];
+  const r = document.getElementById('sel-rect');
+  r.setAttribute('x', x - 3);
+  r.setAttribute('y', y - 3);
+  r.setAttribute('width',  w + 6);
+  r.setAttribute('height', h + 6);
+  r.setAttribute('opacity', '1');
+}
+</script>
