@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painéis Vigilância — Recife · Documentação</title>
+<style>
+:root {
+  --ink:      #0F1E2D;
+  --ink-mid:  #2E4A5E;
+  --muted:    #5B7A8D;
+  --border:   #C8DCE8;
+  --surface:  #EFF4F8;
+  --card:     #FFFFFF;
+  --teal:     #1D9E75;
+  --teal-dim: #E3F5EF;
+  --blue:     #185FA5;
+  --blue-dim: #E3EFF7;
+  --tag-bg:   #D6EAF8;
+  --code-bg:  #F0F4F7;
+  --sidebar-w:260px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: -apple-system, 'Segoe UI', system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--ink);
+  background: var(--surface);
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ── SIDEBAR ── */
+#sidebar {
+  width: var(--sidebar-w);
+  flex-shrink: 0;
+  background: var(--ink);
+  color: #C8DCE8;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+}
+.sidebar-header {
+  padding: 26px 20px 18px;
+  border-bottom: 1px solid rgba(200,220,232,0.12);
+}
+.sidebar-header .eyebrow {
+  font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--teal); font-weight: 600; margin-bottom: 6px;
+}
+.sidebar-header h1 {
+  font-family: Georgia, serif; font-size: 15.5px; font-weight: normal;
+  line-height: 1.4; color: #fff;
+}
+.sidebar-nav { padding: 14px 0 32px; flex: 1; }
+.nav-label {
+  font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: rgba(200,220,232,0.4); padding: 14px 20px 4px; font-weight: 600;
+}
+.nav-link {
+  display: flex; align-items: center; gap: 9px;
+  padding: 8px 20px; color: rgba(200,220,232,0.72);
+  text-decoration: none; font-size: 13px; line-height: 1.35;
+  border-left: 3px solid transparent;
+  cursor: pointer; transition: color .13s, background .13s;
+}
+.nav-link:hover { color: #fff; background: rgba(255,255,255,0.05); }
+.nav-link.active {
+  color: #fff; border-left-color: var(--teal);
+  background: rgba(29,158,117,0.11);
+}
+.nav-num {
+  font-size: 10.5px; font-variant-numeric: tabular-nums; font-weight: 700;
+  color: var(--teal); opacity: .8; flex-shrink: 0; width: 15px;
+}
+
+/* ── MAIN ── */
+#main { margin-left: var(--sidebar-w); flex: 1; min-width: 0; }
+
+/* ── VIEWS ── */
+.view { display: none; }
+.view.active { display: block; }
+
+/* ── HOME / INTRO ── */
+.intro-hero {
+  background: var(--ink); padding: 52px 60px 48px; color: #C8DCE8;
+}
+.intro-hero .kicker {
+  font-size: 10px; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--teal); font-weight: 600; margin-bottom: 12px;
+}
+.intro-hero h2 {
+  font-family: Georgia, serif; font-size: 30px; font-weight: normal;
+  color: #fff; line-height: 1.2; text-wrap: balance; margin-bottom: 14px;
+}
+.intro-hero p {
+  font-size: 14.5px; line-height: 1.7; max-width: 580px;
+  color: rgba(200,220,232,.78); margin-bottom: 32px;
+}
+.systems-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px,1fr));
+  gap: 11px; max-width: 700px;
+}
+.sys-card {
+  background: rgba(255,255,255,.06); border: 1px solid rgba(200,220,232,.13);
+  border-radius: 6px; padding: 13px 15px;
+}
+.sys-card .sigla { font-size: 11px; font-weight: 700; letter-spacing: .05em; color: var(--teal); margin-bottom: 3px; }
+.sys-card .nome  { font-size: 13px; color: #fff; line-height: 1.3; margin-bottom: 3px; }
+.sys-card .desc  { font-size: 11.5px; color: rgba(200,220,232,.55); line-height: 1.4; }
+
+.index-panel { padding: 44px 60px; }
+.index-panel h3 {
+  font-family: Georgia, serif; font-size: 19px; font-weight: normal;
+  color: var(--ink); margin-bottom: 18px;
+}
+.index-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); gap: 9px; }
+.index-item {
+  display: flex; align-items: flex-start; gap: 11px; padding: 13px 15px;
+  border: 1px solid var(--border); border-radius: 6px;
+  text-decoration: none; color: var(--ink);
+  cursor: pointer; transition: border-color .13s, background .13s;
+  background: var(--card);
+}
+.index-item:hover { border-color: var(--teal); background: var(--teal-dim); }
+.index-item .n { font-size: 11px; font-weight: 700; color: var(--teal); flex-shrink: 0; padding-top: 1px; }
+.index-item .t { font-size: 13.5px; font-weight: 500; line-height: 1.3; }
+
+/* ── PAGE VIEW ── */
+.page-view { padding: 44px 60px 64px; }
+
+.page-header {
+  display: flex; align-items: flex-start; gap: 14px;
+  margin-bottom: 28px; padding-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+}
+.page-badge {
+  background: var(--ink); color: var(--teal);
+  font-size: 10px; font-weight: 700; letter-spacing: .05em;
+  padding: 5px 10px; border-radius: 4px; flex-shrink: 0; margin-top: 4px;
+}
+.page-header h2 {
+  font-family: Georgia, serif; font-size: 24px; font-weight: normal;
+  color: var(--ink); line-height: 1.2; text-wrap: balance;
+}
+
+/* two-col intro */
+.page-intro {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;
+}
+@media (max-width:860px) { .page-intro { grid-template-columns:1fr; } }
+.iblock {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 8px; padding: 20px 22px;
+}
+.iblock h4 {
+  font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--muted); font-weight: 700; margin-bottom: 9px;
+}
+.iblock p, .iblock li { font-size: 13.5px; line-height: 1.65; color: var(--ink-mid); }
+.iblock ul { padding-left: 17px; }
+.iblock li { margin-bottom: 3px; }
+.src-tag {
+  display: inline-flex; align-items: center;
+  background: var(--blue-dim); color: var(--blue);
+  font-size: 11.5px; font-weight: 600; padding: 2px 9px;
+  border-radius: 3px; margin: 2px 3px 2px 0;
+}
+
+/* stage cards */
+.stage {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 8px; border-left: 4px solid var(--teal);
+  margin-bottom: 14px; overflow: hidden;
+}
+.stage.blue  { border-left-color: var(--blue); }
+.stage.gray  { border-left-color: #8BAEC0; }
+.stage.image { border-left-color: #7B61B8; }
+
+.stage-hd {
+  display: flex; align-items: center; gap: 11px;
+  padding: 12px 20px; background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.stage-num {
+  font-size: 10.5px; font-weight: 700; letter-spacing: .06em;
+  padding: 2px 7px; border-radius: 3px;
+  background: var(--teal-dim); color: var(--teal);
+}
+.stage.blue  .stage-num { background: var(--blue-dim); color: var(--blue); }
+.stage.gray  .stage-num { background: var(--surface); color: var(--muted); }
+.stage.image .stage-num { background: #EDE8F8; color: #7B61B8; }
+.stage-hd h3 { font-size: 13.5px; font-weight: 600; color: var(--ink); }
+
+.stage-note {
+  font-size: 12.5px; color: var(--muted); padding: 9px 20px 10px;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  font-style: italic;
+}
+.stage-empty { padding: 12px 20px; color: var(--muted); font-size: 13px; }
+
+/* fluxo image */
+.fluxo-wrap {
+  padding: 20px 24px 24px; background: var(--card);
+}
+.fluxo-wrap img {
+  max-width: 100%; height: auto; border-radius: 4px;
+  border: 1px solid var(--border); display: block;
+}
+
+/* tables */
+.tbl-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+table {
+  width: 100%; border-collapse: collapse; font-size: 13px;
+  font-variant-numeric: tabular-nums; min-width: 440px;
+}
+thead th {
+  background: var(--tag-bg); color: var(--blue);
+  font-size: 10.5px; letter-spacing: .07em; text-transform: uppercase;
+  font-weight: 700; padding: 9px 14px; text-align: left;
+  border-bottom: 2px solid var(--border); white-space: nowrap;
+}
+tbody tr { border-bottom: 1px solid var(--border); }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: var(--surface); }
+td { padding: 9px 14px; vertical-align: top; line-height: 1.5; color: var(--ink-mid); }
+td:first-child {
+  font-family: 'Consolas','Monaco','Courier New',monospace;
+  font-size: 12px; color: var(--ink); white-space: nowrap;
+}
+.lbl td:first-child {
+  font-family: inherit; font-size: 13px; font-weight: 500;
+  color: var(--ink); white-space: normal;
+}
+code {
+  font-family: 'Consolas','Monaco','Courier New',monospace;
+  font-size: 11.5px; background: var(--code-bg);
+  color: var(--ink); padding: 1px 4px; border-radius: 3px;
+}
+
+/* responsive */
+@media (max-width:700px) {
+  :root { --sidebar-w:0px; }
+  #sidebar { display:none; }
+  #main { margin-left:0; }
+  .intro-hero, .index-panel, .page-view { padding: 28px 18px; }
+}
+a:focus-visible { outline:2px solid var(--teal); outline-offset:2px; border-radius:2px; }
+@media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } }
+</style>
+</head>
+<body>
+
+<nav id="sidebar">
+  <div class="sidebar-header">
+    <div class="eyebrow">Vital Strategies · Recife</div>
+    <h1>Painéis Vigilância<br>Documentação técnica</h1>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-label">Início</div>
+    <div class="nav-link active" data-view="home">Sobre o documento</div>
+
+    <div class="nav-label" style="margin-top:6px;">Páginas</div>
+    <div class="nav-link" data-view="p1"><span class="nav-num">01</span>Mapa da Violência</div>
+    <div class="nav-link" data-view="p2"><span class="nav-num">02</span>SINAN Violência</div>
+    <div class="nav-link" data-view="p3"><span class="nav-num">03</span>SINAN Intox. Exógena</div>
+    <div class="nav-link" data-view="p4"><span class="nav-num">04</span>Hospitalizações</div>
+    <div class="nav-link" data-view="p5"><span class="nav-num">05</span>Mortalidade</div>
+    <div class="nav-link" data-view="p6"><span class="nav-num">06</span>Análise do Linkage</div>
+    <div class="nav-link" data-view="p7"><span class="nav-num">07</span>Linha da Vida</div>
+    <div class="nav-link" data-view="p8"><span class="nav-num">08</span>Subnotificações</div>
+  </div>
+</nav>
+
+<main id="main">
+
+<!-- ══════════════ HOME ══════════════ -->
+<div id="view-home" class="view active">
+  <div class="intro-hero">
+    <div class="kicker">Guia de origem dos dados e visualizações</div>
+    <h2>Painéis Vigilância — Recife</h2>
+    <p>Este documento descreve a origem dos dados, as variáveis utilizadas, os pré-processamentos aplicados e a lógica de cada visualização em cada página do painel da Vital Strategies entregue à vigilância de Recife.</p>
+    <div class="systems-grid">
+      <div class="sys-card"><div class="sigla">SINAN</div><div class="nome">Sistema de Informação de Agravos de Notificação</div><div class="desc">Notificações de violência e intoxicação exógena</div></div>
+      <div class="sys-card"><div class="sigla">SIH</div><div class="nome">Sistema de Informações Hospitalares</div><div class="desc">Internações hospitalares</div></div>
+      <div class="sys-card"><div class="sigla">SIM</div><div class="nome">Sistema de Informação sobre Mortalidade</div><div class="desc">Óbitos e causas de morte</div></div>
+      <div class="sys-card"><div class="sigla">e-SUS APS</div><div class="nome">Sistema de Atenção Básica</div><div class="desc">Atendimentos na atenção primária</div></div>
+      <div class="sys-card"><div class="sigla">CNES</div><div class="nome">Cadastro Nacional de Estabelecimentos de Saúde</div><div class="desc">Unidades de saúde e sua localização</div></div>
+    </div>
+  </div>
+  <div class="index-panel">
+    <h3>Índice de páginas</h3>
+    <div class="index-grid">
+      <div class="index-item" data-view="p1"><span class="n">01</span><span class="t">Mapa da Violência</span></div>
+      <div class="index-item" data-view="p2"><span class="n">02</span><span class="t">SINAN Violência</span></div>
+      <div class="index-item" data-view="p3"><span class="n">03</span><span class="t">SINAN Intoxicação Exógena</span></div>
+      <div class="index-item" data-view="p4"><span class="n">04</span><span class="t">Hospitalizações</span></div>
+      <div class="index-item" data-view="p5"><span class="n">05</span><span class="t">Mortalidade</span></div>
+      <div class="index-item" data-view="p6"><span class="n">06</span><span class="t">Análise do Linkage</span></div>
+      <div class="index-item" data-view="p7"><span class="n">07</span><span class="t">Linha da Vida</span></div>
+      <div class="index-item" data-view="p8"><span class="n">08</span><span class="t">Subnotificações</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ PAGE 1 ══════════════ -->
+<div id="view-p1" class="view">
+<div class="page-view">
+  <div class="page-header">
+    <div class="page-badge">PÁG 01</div>
+    <h2>Mapa da Violência</h2>
+  </div>
+  <div class="page-intro">
+    <div class="iblock">
+      <h4>O que é essa página?</h4>
+      <p>Apresenta um mapa interativo de Recife com a localização geográfica das residências das mulheres identificadas nos registros do SINAN Violência, sobreposta aos bairros da cidade e às unidades de saúde (CNES). Permite visualizar a distribuição espacial dos casos de violência e identificar concentrações por região.</p>
+    </div>
+    <div class="iblock">
+      <h4>De onde vêm os dados?</h4>
+      <ul>
+        <li><strong>Pontos das mulheres:</strong> coordenadas geográficas com informações demográficas e trajetória nos sistemas. Originados do linkage probabilístico.</li>
+        <li><strong>Bairros de Recife:</strong> polígonos (shapefile) dos bairros.</li>
+        <li><strong>Unidades de saúde:</strong> localização e nome das unidades do CNES.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-hd"><span class="stage-num">1 · SQL / ETL</span><h3>Fontes dos dados</h3></div>
+    <div class="stage-note">Arquivos .qs e .RData pré-processados — carregados em <code>global.R</code> e <code>mapa_ui.R</code>.</div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Coluna / Arquivo</th><th>Tabela de origem</th><th>Descrição</th></tr></thead>
+      <tbody>
+        <tr><td>pontos_viol_real.qs</td><td>dados/pontos_viol_real.qs</td><td>Mulheres com ≥1 notificação SINAN; coordenada do endereço mais recente via linkage probabilístico (SINAN Viol + SIH + SIM + e-SUS APS)</td></tr>
+        <tr><td>cnes.RData</td><td>dados/cnes.RData</td><td>Cadastro de unidades: <code>cd_cnes_unid_not</code>, <code>NO_FANTASIA</code>, <code>latitude_cnes</code>, <code>longitude_cnes</code></td></tr>
+        <tr><td>cnes_join.RData</td><td>dados/cnes_join.RData</td><td>Join CNES ↔ id_unico: <code>cd_cnes_unid_not</code>, <code>texto_final</code></td></tr>
+        <tr><td>bairros.geojson</td><td>dados/bairros.geojson</td><td>Polígonos dos bairros do Recife (objeto sf)</td></tr>
+        <tr><td>linha_vida_esus4.qs</td><td>dados/linha_vida_esus4.qs</td><td>Trajetória nos sistemas (<code>df_linha_vida</code>): <code>texto_final</code> e datas</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="stage blue">
+    <div class="stage-hd"><span class="stage-num">2 · Preparação</span><h3>Transformações no carregamento</h3></div>
+    <div class="tbl-wrap"><table class="lbl">
+      <thead><tr><th>Transformação</th><th>Descrição</th></tr></thead>
+      <tbody>
+        <tr><td>mutate(Latitude, Longitude, ano_geo)</td><td>Converte para numeric/integer</td></tr>
+        <tr><td>left_join(cnes_join, by=id_unico)</td><td>Enriquece df_linha_vida com <code>cd_cnes_unid_not</code> e <code>texto_final</code></td></tr>
+        <tr><td>left_join(df_linha_vida2, by=id_unico)</td><td>Adiciona trajetória e <code>texto_final</code> a pontos_viol</td></tr>
+        <tr><td>mutate(cd_cnes_unid_not = as.numeric(...))</td><td>Garante tipo numérico para match com selected_cnes</td></tr>
+        <tr><td>st_read(dados/bairros.geojson)</td><td>Carrega polígonos como objeto sf</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="stage gray">
+    <div class="stage-hd"><span class="stage-num">3 · Filtros</span><h3>Filtros reativos</h3></div>
+    <div class="stage-note"><code>filtro_id_pessoa</code> não filtra linhas — apenas define <code>highlight=TRUE</code> na linha correspondente.</div>
+    <div class="tbl-wrap"><table class="lbl">
+      <thead><tr><th>Filtro</th><th>O que faz</th><th>Input</th><th>Variável</th></tr></thead>
+      <tbody>
+        <tr><td>Raça/cor</td><td>Mantém só mulheres da raça selecionada</td><td><code>filtro_raca</code></td><td><code>ds_raca</code></td></tr>
+        <tr><td>Idade</td><td>Mantém mulheres dentro da faixa de idade</td><td><code>filtro_idade</code></td><td><code>nu_idade_anos</code></td></tr>
+        <tr><td>Ano</td><td>Mantém registros do período selecionado</td><td><code>filtro_ano</code></td><td><code>ano_geo</code></td></tr>
+        <tr><td>ID Pessoa</td><td>Destaca a mulher no mapa (highlight=TRUE, não remove linhas)</td><td><code>filtro_id_pessoa</code></td><td><code>id_pessoa</code></td></tr>
+        <tr><td>CNES</td><td>Mantém só mulheres atendidas naquela unidade</td><td><code>selected_cnes</code> (clique no mapa)</td><td><code>cd_cnes_unid_not</code></td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-hd"><span class="stage-num">4 · Visualizações</span><h3>Camadas do mapa</h3></div>
+    <div class="tbl-wrap"><table class="lbl">
+      <thead><tr><th>Visualização</th><th>O que mostra</th><th>Colunas usadas</th><th>Filtros</th></tr></thead>
+      <tbody>
+        <tr><td>Polígonos dos bairros</td><td>Contornos dos bairros de Recife</td><td><code>mapa (sf)</code></td><td>Nenhum</td></tr>
+        <tr><td>Marcadores CNES</td><td>Localização das unidades de saúde cadastradas no CNES</td><td><code>cnes</code></td><td><code>selected_cnes</code></td></tr>
+        <tr><td>Marcadores de pontos</td><td>Cada ponto representa uma mulher com ≥1 notificação de violência, posicionada pela coordenada do endereço mais recente</td><td><code>pontos_viol</code></td><td>Todos; destaque se <code>highlight=TRUE</code></td></tr>
+        <tr><td>Mapa de calor</td><td>Concentração espacial dos casos — áreas de maior densidade, sem pontos individuais</td><td><code>pontos_viol</code></td><td>Todos; ativado por <code>toggle_heatmap</code></td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="stage image">
+    <div class="stage-hd"><span class="stage-num">Fluxo de dados</span><h3>Diagrama de fluxo — Página 1</h3></div>
+    <div class="fluxo-wrap"><img src="img_pages/page_05.png" alt="Fluxo de Dados — Página 1: Mapa da Violência"></div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════ PAGE 2 ══════════════ -->
+<div id="view-p2" class="view">
+<div class="page-view">
+  <div class="page-header">
+    <div class="page-badge">PÁG 02</div>
+    <h2>SINAN Violência</h2>
+  </div>
+  <div class="page-intro">
+    <div class="iblock">
+      <h4>O que é essa página?</h4>
+      <p>Apresenta análises sobre as notificações de violência doméstica, sexual e outras violências interpessoais registradas em Recife. Os dados cobrem o período de 2016 a 2025.</p>
+    </div>
+    <div class="iblock">
+      <h4>De onde vêm os dados?</h4>
+      <div style="margin-bottom:8px;"><span class="src-tag">SINAN</span></div>
+      <p>Ficha de <strong>Violência Doméstica, Sexual e/ou Outras Violências Interpessoais</strong>. Profissionais de saúde registram obrigatoriamente casos suspeitos e confirmados. Cada linha representa uma notificação individual.</p>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-hd"><span class="stage-num">1 · SQL / ETL</span><h3>Fontes dos dados</h3></div>
+    <div class="stage-note">Query na view <code>tratado_sinan_viol_publica</code> (PostgreSQL). Resultado salvo como <code>sinan_viol.qs</code> → objeto <code>df_sinan</code>. Filtro: <code>sg_sexo = F</code>.</div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Coluna</th><th>Tabela de origem</th><th>Descrição</th></tr></thead>
+      <tbody>
+        <tr><td>id_pessoa</td><td>tratado_sinan_viol_publica</td><td>Identificador único da mulher (chave de linkage)</td></tr>
+        <tr><td>nu_idade_anos</td><td>tratado_sinan_viol_publica</td><td>Idade em anos</td></tr>
+        <tr><td>ds_raca</td><td>tratado_sinan_viol_publica</td><td>Raça/cor declarada</td></tr>
+        <tr><td>ano</td><td>tratado_sinan_viol_publica</td><td>Ano da notificação</td></tr>
+        <tr><td>ds_bairro_res</td><td>tratado_sinan_viol_publica</td><td>Bairro de residência</td></tr>
+        <tr><td>autor_sexo</td><td>tratado_sinan_viol_publica</td><td>Sexo do agressor (código — decodificado em viol_ui.R)</td></tr>
+        <tr><td>autor_alco</td><td>tratado_sinan_viol_publica</td><td>Suspeita de uso de álcool pelo agressor</td></tr>
+        <tr><td>les_autop</td><td>tratado_sinan_viol_publica</td><td>Lesão autoprovocada (código — decodificado em viol_ui.R)</td></tr>
+        <tr><td>local_ocor</td><td>tratado_sinan_viol_publica</td><td>Local de ocorrência (código 2 dígitos — decodificado em viol_ui.R)</td></tr>
+        <tr><td>out_vezes</td><td>tratado_sinan_viol_publica</td><td>Ocorrência repetida (código — decodificado em viol_ui.R)</td></tr>
+        <tr><td>viol_fisic … viol_outr</td><td>tratado_sinan_viol_publica</td><td>Flags de tipo de violência (0/1)</td></tr>
+        <tr><td>ag_forca … ag_outros</td><td>tratado_sinan_viol_publica</td><td>Flags de meio de agressão (0/1)</td></tr>
+        <tr><td>def_trans … def_espec</td><td>tratado_sinan_viol_publica</td><td>Flags de deficiência da vítima (0/1)</td></tr>
+        <tr><td>tran_ment, tran_comp</td><td>tratado_sinan_viol_publica</td><td>Flags de transtorno mental/comportamental (0/1)</td></tr>
+        <tr><td>rede_sau … enc_vara</td><td>tratado_sinan_viol_publica</td><td>Flags de encaminhamento para serviços (0/1) — combinados em pares em viol_ui.R</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="stage blue">
+    <div class="stage-hd"><span class="stage-num">2 · Preparação</span><h3>Derivações</h3></div>
+    <div class="stage-note">Derivações em <code>global.R</code> e <code>viol_ui.R</code>. Flags <code>filtro_viol_*</code> criadas para cada tipo de violência.</div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Coluna derivada</th><th>Lógica</th></tr></thead>
+      <tbody>
+        <tr><td>faixa_etaria_padrao</td><td>faixa_etaria_func(nu_idade_anos)</td></tr>
+        <tr><td>filtro_viol_fisica … filtro_viol_autoprovocada</td><td>Flag binária por tipo de violência (usada nos filtros)</td></tr>
+        <tr><td>ds_tipo_violencia</td><td>Descrição concatenada dos tipos de violência presentes</td></tr>
+        <tr><td>ds_autor_sexo</td><td>Decode: 1→Masculino, 2→Feminino, 3→Ambos, else Ignorado</td></tr>
+        <tr><td>les_autop (decodificado)</td><td>Decode: 1→Sim, 2→Não, 9/NA→Ignorado</td></tr>
+        <tr><td>local_ocor (decodificado)</td><td>Decode código 2 dígitos para texto legível</td></tr>
+        <tr><td>out_vezes (decodificado)</td><td>Decode: 1→Sim, 2→Não, 9→Ignorado</td></tr>
+        <tr><td>rede_enc_sau … infan_enc_juv</td><td>OR dos dois flags de encaminhamento correspondentes</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="stage gray">
+    <div class="stage-hd"><span class="stage-num">3 · Filtros</span><h3>Filtros reativos</h3></div>
+    <div class="stage-note"><code>filtro_violencias</code> usa <code>filter_at</code> — retém linhas onde qualquer flag selecionada = 1.</div>
+    <div class="tbl-wrap"><table class="lbl">
+      <thead><tr><th>Filtro</th><th>O que faz</th><th>Input</th><th>Variável</th></tr></thead>
+      <tbody>
+        <tr><td>Faixa etária</td><td>Mantém mulheres dentro da faixa de idade</td><td><code>filtro_idade</code></td><td><code>faixa_etaria_padrao</code></td></tr>
+        <tr><td>Raça/cor</td><td>Mantém só mulheres da raça selecionada</td><td><code>filtro_raca</code></td><td><code>ds_raca</code></td></tr>
+        <tr><td>Ano</td><td>Mantém registros do período — não aplicado em freq_ano_graf</td><td><code>filtro_ano</code></td><td><code>ano</code></td></tr>
+        <tr><td>Tipo de violência</td><td>Mantém notificações com o tipo marcado</td><td><code>filtro_violencias</code></td><td><code>filtro_viol_* (flags)</code></td></tr>
+        <tr><td>Lesão autoprovocada</td><td>Mantém pelo status selecionado</td><td><code>les_autop_fil</code></td><td><code>les_autop</code></td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-hd"><span class="stage-num">4 · Visualizações</span><h3>Gráficos e tabelas</h3></div>
+    <div class="tbl-wrap"><table class="lbl">
+      <thead><tr><th>Visualização</th><th>O que mostra</th><th>Pré-processamento</th><th>Filtros</th></tr></thead>
+      <tbody>
+        <tr><td>Frequência por ano</td><td>Evolução do número de notificações ao longo dos anos</td><td>ano_graf(df) → tab_1(ano)</td><td>Todos exceto filtro_ano</td></tr>
+        <tr><td>Distribuição por faixa etária</td><td>Proporção de notificações em cada faixa de idade. Download .xlsx.</td><td>faixa_etaria_graf(df) → tab_1(faixa_etaria_padrao)</td><td>Todos os filtros</td></tr>
+        <tr><td>Distribuição por raça/cor</td><td>Proporção de notificações por raça/cor declarada. Download .xlsx.</td><td>raca_cor_graf(df) → tab_1(ds_raca)</td><td>Todos os filtros</td></tr>
+        <tr><td>Tabela de categorias SINAN</td><td>Tabela interativa cruzando uma categoria com uma variável de estratificação. Download .xlsx.</td><td>tab_cat_sinan(filtered_df, extrato, valor)</td><td>Todos os filtros</td></tr>
+        <tr><td>Sexo do agressor × uso de álcool</td><td>Barras empilhadas: sexo do agressor × suspeita de uso de álcool</td><td>tab_2(ds_autor_sexo, autor_alco) + pct_row=TRUE</td><td>Todos os filtros</td></tr>
+        <tr><td>Tabela cruzada configurável</td><td>Tabela de dupla entrada montada livremente pelo usuário. Download .xlsx.</td><td>tabela_2(df, var_row, var_col) → pivot_wider + adorn_totals</td><td>Ignora filtro_violencias</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="stage image">
+    <div class="stage-hd"><span class="stage-num">Fluxo de dados</span><h3>Diagrama de fluxo — Página 2</h3></div>
+    <div class="fluxo-wrap"><img src="img_pages/page_08.png" alt="Fluxo de Dados — Página 2: SINAN Violência"></div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════ PAGE 3 ══════════════ -->
+<div id="view-p3" class="view">
+<div class="page-view">
+  <div class="page-header">
+    <div class="page-badge">PÁG 03</div>
+    <h2>SINAN Intoxicação Exógena</h2>
+  </div>
+  <div class="page-intro">
+    <div class="iblock">
+      <h4>O que é essa página?</h4>
+      <p>Apresenta análises sobre as notificações de intoxicação exógena registradas em Recife — casos em que uma pessoa foi exposta a substâncias tóxicas como medicamentos, agrotóxicos, drogas ou produtos químicos. Dados de 2016 a 2025.</p>
+    </div>
+    <div class="iblock">
+      <h4>De onde vêm os dados?</h4>
+      <div style="margin-bottom:8px;"><span class="src-tag">SINAN</span></div>
+      <p>Ficha de <strong>Intoxicação Exógena</strong>. Profissionais de saúde registram obrigatoriamente casos suspeitos e confirmados de exposição a substâncias químicas, plantas ou alimentos tóxicos, desde que o paciente apresente sinais e sintomas clínicos. Cada linha representa uma notificação individual.</p>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-hd"><span class="stage-num">1 · SQL / ETL</span><h3>Fontes dos dados</h3></div>
+    <div class="stage-note">Query na view <code>tratado_sinan_iexo_publica</code>. Resultado salvo como <code>df_iexo.qs</code> → objeto <code>df_iexo</code>. Filtro: <code>sg_sexo = F</code>.</div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Coluna</th><th>Tabela de origem</th><th>Descrição</th></tr></thead>
+      <tbody>
+        <tr><td>id_pessoa</td><td>tratado_sinan_iexo_publica</td><td>Identificador único da mulher (chave de linkage)</td></tr>
+        <tr><td>nu_idade_anos</td><td>tratado_sinan_iexo_publica</td><td>Idade em anos</td></tr>
+        <tr><td>ds_raca</td><td>tratado_sinan_iexo_publica</td><td>Raça/cor declarada</td></tr>
+        <tr><td>ano</td><td>tratado_sinan_iexo_publica</td><td>Ano da notificação</td></tr>
+        <tr><td>ds_circunstan</td><td>tratado_sinan_iexo_publica</td><td>Circunstância da intoxicação (tentativa de suicídio, acidente, etc.)</td></tr>
+        <tr><td>ds_agente_tox</td><td>tratado_sinan_iexo_publica</td><td>Substância causadora da intoxicação</td></tr>
+        <tr><td>ds_tpatend</td><td>tratado_sinan_iexo_publica</td><td>Tipo de atendimento (ambulatorial, hospitalar, domiciliar, etc.)</td></tr>
+        <tr><td>ds_hospital</td><td>tratado_sinan_iexo_publica</td><td>Hospitalização (Sim / Não / Ignorado)</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="stage blue">
+    <div class="stage-hd"><span class="stage-num">2 · Preparação</span><h3>Derivações</h3></div>
+    <div class="stage-empty">Apenas <code>faixa_etaria_padrao</code> derivada via <code>faixa_etaria_func()</code>. Sem outras transformações.</div>
+  </div>
+
+  <div class="stage gray">
+    <div class="stage-hd"><span class="stage-num">3 · Filtros</span><h3>Filtros reativos</h3></div>
+    <div class="stage-note"><code>freq_ano_graf</code> usa <code>df_iexo</code> sem <code>filtro_ano</code> (série histórica completa).</div>
+    <div class="tbl-wrap"><table class="lbl">
+      <thead><tr><th>Filtro</th><th>O que faz</th><th>Input</th><th>Variável</th></tr></thead>
+      <tbody>
+        <tr><td>Raça/cor</td><td>Mantém só mulheres da raça selecionada</td><td><code>filtro_raca</code></td><td><code>ds_raca</code></td></tr>
+        <tr><td>Faixa etária</td><td>Mantém mulheres dentro da faixa de idade</td><td><code>filtro_faixa_etaria</code></td><td><code>faixa_etaria_padrao</code></td></tr>
+        <tr><td>Circunstância</td><td>Mantém só a circunstância selecionada</td><td><code>filtro_circuns</code></td><td><code>ds_circunstan</code></td></tr>
+        <tr><td>Ano</td><td>Mantém registros do período — não aplicado em freq_ano_graf</td><td><code>filtro_ano</code></td><td><code>ano</code></td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-hd"><span class="stage-num">4 · Visualizações</span><h3>Gráficos e tabelas</h3></div>
+    <div class="tbl-wrap"><table class="lbl">
+      <thead><tr><th>Visualização</th><th>O que mostra</th><th>Pré-processamento</th><th>Filtros</th></tr></thead>
+      <tbody>
+        <tr><td>Frequência por ano</td><td>Evolução das notificações de intoxicação ao longo dos anos</td><td>ano_graf(df) → tab_1(ano)</td><td>Série histórica completa</td></tr>
+        <tr><td>Distribuição por faixa etária</td><td>Proporção de notificações em cada faixa de idade. Download .xlsx.</td><td>faixa_etaria_graf(df) → tab_1(faixa_etaria_padrao)</td><td>Todos os filtros</td></tr>
+        <tr><td>Distribuição por raça/cor</td><td>Proporção de notificações por raça/cor declarada. Download .xlsx.</td><td>raca_cor_graf(df) → tab_1(ds_raca)</td><td>Todos os filtros</td></tr>
+        <tr><td>Distribuição por circunstância</td><td>Distribuição por motivo da intoxicação, ordenada por frequência. Download .xlsx.</td><td>tab_1(ds_circunstan) → reorder por n → barras horizontais</td><td>Todos os filtros</td></tr>
+        <tr><td>Distribuição por agente tóxico</td><td>Distribuição por substância causadora, ordenada por frequência. Download .xlsx.</td><td>tab_1(ds_agente_tox) → reorder por n → barras horizontais</td><td>Todos os filtros</td></tr>
+        <tr><td>Tipo de atendimento × hospitalização</td><td>Barras empilhadas: tipo de atendimento × hospitalização (Sim/Não/Ignorado). Download .xlsx.</td><td>tab_2(ds_tpatend, ds_hospital) + pct_row=TRUE</td><td>Todos os filtros</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="stage image">
+    <div class="stage-hd"><span class="stage-num">Fluxo de dados</span><h3>Diagrama de fluxo — Página 3</h3></div>
+    <div class="fluxo-wrap"><img src="img_pages/page_10.png" alt="Fluxo de Dados — Página 3: SINAN Intoxicação Exógena"></div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════ PAGE 4 ══════════════ -->
+<div id="view-p4" class="view">
+<div class="page-view">
+  <div class="page-header">
+    <div class="page-badge">PÁG 04</div>
+    <h2>Hospitalizações</h2>
+  </div>
+  <div class="page-intro">
+    <div class="iblock">
+      <h4>O que é essa página?</h4>
+      <p>Apresenta análises sobre as internações hospitalares por causas externas registradas em Recife, com foco nos capítulos XIX e XX da CID-10 (lesões, envenenamentos e causas externas de morbidade). Dados de 2016 a 2025.</p>
+    </div>
+    <div class="iblock">
+      <h4>De onde vêm os dados?</h4>
+      <div style="margin-bottom:8px;"><span class="src-tag">SIH</span></div>
+      <p>O SIH registra todas as internações financiadas pelo SUS. Tabela auxiliar CID-10 usada para traduzir os códigos de diagnóstico em descrições legíveis. Cada linha representa uma autorização de internação hospitalar (AIH).</p>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-hd"><span class="stage-num">1 · SQL / ETL</span><h3>Fontes dos dados</h3></div>
+    <div class="stage-note">Query na view <code>tratado_sih_publica</code>. Filtros: <code>sg_sexo = F</code> · <code>ds_bairro_res IS NOT NULL</code> · <code>cd_diag_pri</code> caps XIX, XX e Z. Resultado salvo como <code>df_sih.qs</code>.</div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Coluna</th><th>Tabela de origem</th><th>Descrição</th></tr></thead>
+      <tbody>
+        <tr><td>id_pessoa</td><td>tratado_sih_publica</td><td>Identificador único da mulher (chave de linkage)</td></tr>
+        <tr><td>id_pareamento</td><td>tratado_sih_publica</td><td>Chave de linkage do registro</td></tr>
+        <tr><td>dt_internacao, dt_saida</td><td>tratado_sih_publica</td><td>Datas de entrada e saída da internação</td></tr>
+        <tr><td>dt_nascimento, ano</td><td>tratado_sih_publica</td><td>Data de nascimento e ano da internação</td></tr>
+        <tr><td>dias_internacao</td><td>Calculada na query</td><td>dt_saida − dt_internacao</td></tr>
+        <tr><td>nu_idade_anos</td><td>tratado_sih_publica</td><td>Idade em anos</td></tr>
+        <tr><td>sg_sexo</td><td>tratado_sih_publica</td><td>Sexo (sempre F)</td></tr>
+        <tr><td>ds_raca</td><td>tratado_sih_publica</td><td>Raça/cor declarada</td></tr>
+        <tr><td>ds_bairro_res</td><td>tratado_sih_publica</td><td>Bairro de residência</td></tr>
+        <tr><td>cd_diag_pri</td><td>tratado_sih_publica</td><td>Diagnóstico principal (CID-10)</td></tr>
+        <tr><td>cd_diag_sec</td><td>tratado_sih_publica</td><td>Diagnósticos secundários</td></tr>
+        <tr><td>cd_proc_rea</td><td>tratado_sih_publica</td><td>Procedimento realizado</td></tr>
+        <tr><td>motiv_saida</td><td>tratado_sih_publica</td><td>Motivo da saída</td></tr>
+        <tr><td>carater_int</td><td>tratado_sih_publica</td><td>Caráter da internação</td></tr>
+        <tr><td>mod_intern</td><td>tratado_sih_publica</td><td>Modalidade (eletiva, urgência…)</td></tr>
+        <tr><td>cd_cnes_unid_not</td><td>tratado_sih_publica</td><td>Unidade de saúde</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="stage blue">
+    <div class="stage-hd"><span class="stage-num">2 · Preparação</span><h3>Derivações</h3></div>
+    <div class="stage-empty"><code>faixa_etaria_padrao</code> derivada via <code>faixa_etaria_func()</code>. <code>dias_internacao</code> calculada na query SQL.</div>
+  </div>
+
+  <div class="stage gray">
+    <div class="stage-hd"><span class="stage-num">3 · Filtros</span><h3>Filtros reativos</h3></div>
+    <div class="stage-note"><code>freq_ano_graf</code> usa <code>df_sih</code> sem <code>filtro_ano</code> (série histórica completa).</div>
+    <div class="tbl-wrap"><table class="lbl">
+      <thead><tr><th>Filtro</th><th>O que faz</th><th>Input</th><th>Variável</th></tr></thead>
+      <tbody>
+        <tr><td>Raça/cor</td><td>Mantém só mulheres da raça selecionada</td><td><code>filtro_raca</code></td><td><code>ds_raca</code></td></tr>
+        <tr><td>Faixa etária</td><td>Mantém mulheres dentro da faixa de idade</td><td><code>filtro_faixa_etaria</code></td><td><code>faixa_etaria_padrao</code></td></tr>
+        <tr><td>Ano</td><td>Mantém registros do período — não aplicado em freq_ano_graf</td><td><code>filtro_ano</code></td><td><code>ano</code></td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-hd"><span class="stage-num">4 · Visualizações</span><h3>Gráficos e tabelas</h3></div>
+    <div class="tbl-wrap"><table class="lbl">
+      <thead><tr><th>Visualização</th><th>O que mostra</th><th>Pré-processamento</th><th>Filtros</th></tr></thead>
+      <tbody>
+        <tr><td>Frequência por ano</td><td>Evolução do número de internações por causas externas ao longo dos anos</td><td>ano_graf(df) → tab_1(ano)</td><td>Todos exceto filtro_ano</td></tr>
+        <tr><td>Distribuição por faixa etária</td><td>Proporção de internações em cada faixa de idade. Download .xlsx.</td><td>faixa_etaria_graf(df) → tab_1(faixa_etaria_padrao)</td><td>Todos os filtros</td></tr>
+        <tr><td>Distribuição por raça/cor</td><td>Proporção de internações por raça/cor declarada. Download .xlsx.</td><td>raca_cor_graf(df) → tab_1(ds_raca)</td><td>Todos os filtros</td></tr>
+        <tr><td>Internações por capítulo CID-10</td><td>Proporção de internações por capítulo (XIX e XX). Barras horizontais ordenadas por frequência.</td><td>read.csv2(cid_10.csv) → left_join por cd_diag_pri = SUBCAT → tab_1(DESCRICAO_CAT)</td><td>Apenas filtro_ano</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="stage image">
+    <div class="stage-hd"><span class="stage-num">Fluxo de dados</span><h3>Diagrama de fluxo — Página 4</h3></div>
+    <div class="fluxo-wrap"><img src="img_pages/page_12.png" alt="Fluxo de Dados — Página 4: Hospitalizações"></div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════ PAGE 5 ══════════════ -->
+<div id="view-p5" class="view">
+<div class="page-view">
+  <div class="page-header">
+    <div class="page-badge">PÁG 05</div>
+    <h2>Mortalidade</h2>
+  </div>
+  <div class="page-intro">
+    <div class="iblock">
+      <h4>O que é essa página?</h4>
+      <p>Apresenta análises sobre os óbitos por causas externas registrados em Recife, com foco nos capítulos XIX e XX da CID-10 (lesões, envenenamentos, agressões, acidentes e outras causas externas de morte). Dados de 2016 a 2025.</p>
+    </div>
+    <div class="iblock">
+      <h4>De onde vêm os dados?</h4>
+      <div style="margin-bottom:8px;"><span class="src-tag">SIM</span></div>
+      <p>O SIM registra todos os óbitos ocorridos no Brasil com base nas Declarações de Óbito. Tabela auxiliar CID-10 usada para traduzir os códigos de causa do óbito. Cada linha representa um óbito individual.</p>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-hd"><span class="stage-num">1 · SQL / ETL</span><h3>Fontes dos dados</h3></div>
+    <div class="stage-note">Query na view <code>tratado_sim_publica</code>. Filtros: <code>sg_sexo = F</code> · causas externas (CID cap. XX). Resultado salvo como <code>df_sim.qs</code>.</div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Coluna</th><th>Tabela de origem</th><th>Descrição</th></tr></thead>
+      <tbody>
+        <tr><td>id_pessoa</td><td>tratado_sim_publica</td><td>Identificador único da mulher (chave de linkage)</td></tr>
+        <tr><td>cd_causabas</td><td>tratado_sim_publica</td><td>Causa básica do óbito (CID-10)</td></tr>
+        <tr><td>dt_obito</td><td>tratado_sim_publica</td><td>Data do óbito</td></tr>
+        <tr><td>ano</td><td>tratado_sim_publica</td><td>Ano do óbito</td></tr>
+        <tr><td>nu_idade_anos</td><td>tratado_sim_publica</td><td>Idade em anos</td></tr>
+        <tr><td>sg_sexo</td><td>tratado_sim_publica</td><td>Sexo (sempre F)</td></tr>
+        <tr><td>ds_raca</td><td>tratado_sim_publica</td><td>Raça/cor declarada</td></tr>
+        <tr><td>ds_bairro_res</td><td>tratado_sim_publica</td><td>Bairro de residência</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="stage blue">
+    <div class="stage-hd"><span class="stage-num">2 · Preparação</span><h3>Derivações</h3></div>
+    <div class="stage-empty"><code>faixa_etaria_padrao</code> derivada via <code>faixa_etaria_func()</code>. Sem outras derivações.</div>
+  </div>
+
+  <div class="stage gray">
+    <div class="stage-hd"><span class="stage-num">3 · Filtros</span><h3>Filtros reativos</h3></div>
+    <div class="stage-note"><code>freq_ano_graf</code> usa <code>df_sim</code> sem <code>filtro_ano</code> (série histórica completa).</div>
+    <div class="tbl-wrap"><table class="lbl">
+      <thead><tr><th>Filtro</th><th>O que faz</th><th>Input</th><th>Variável</th></tr></thead>
+      <tbody>
+        <tr><td>Raça/cor</td><td>Mantém só mulheres da raça selecionada</td><td><code>filtro_raca</code></td><td><code>ds_raca</code></td></tr>
+        <tr><td>Faixa etária</td><td>Mantém mulheres dentro da faixa de idade</td><td><code>filtro_faixa_etaria</code></td><td><code>faixa_etaria_padrao</code></td></tr>
+        <tr><td>Ano</td><td>Mantém registros do período — não aplicado em freq_ano_graf</td><td><code>filtro_ano</code></td><td><code>ano</code></td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-hd"><span class="stage-num">4 · Visualizações</span><h3>Gráficos e tabelas</h3></div>
+    <div class="tbl-wrap"><table class="lbl">
+      <thead><tr><th>Visualização</th><th>O que mostra</th><th>Pré-processamento</th><th>Filtros</th></tr></thead>
+      <tbody>
+        <tr><td>Frequência por ano</td><td>Evolução do número de óbitos por causas externas ao longo dos anos</td><td>ano_graf(df) → tab_1(ano)</td><td>Série histórica completa</td></tr>
+        <tr><td>Distribuição por faixa etária</td><td>Proporção de óbitos em cada faixa de idade. Download .xlsx.</td><td>faixa_etaria_graf(df) → tab_1(faixa_etaria_padrao)</td><td>Todos os filtros</td></tr>
+        <tr><td>Distribuição por raça/cor</td><td>Proporção de óbitos por raça/cor declarada. Download .xlsx.</td><td>raca_cor_graf(df) → tab_1(ds_raca)</td><td>Todos os filtros</td></tr>
+        <tr><td>Óbitos por capítulo CID-10</td><td>Proporção de óbitos por capítulo (XIX e XX). Barras horizontais ordenadas por frequência.</td><td>read.csv2(cid_10.csv) → left_join por cd_causabas = SUBCAT → tab_1(DESCRICAO_CAT)</td><td>Apenas filtro_ano</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="stage image">
+    <div class="stage-hd"><span class="stage-num">Fluxo de dados</span><h3>Diagrama de fluxo — Página 5</h3></div>
+    <div class="fluxo-wrap"><img src="img_pages/page_14.png" alt="Fluxo de Dados — Página 5: Mortalidade"></div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════ PAGE 6 ══════════════ -->
+<div id="view-p6" class="view">
+<div class="page-view">
+  <div class="page-header">
+    <div class="page-badge">PÁG 06</div>
+    <h2>Análise do Linkage</h2>
+  </div>
+  <div class="page-intro">
+    <div class="iblock">
+      <h4>O que é essa página?</h4>
+      <p>Apresenta resultados do linkage determinístico — um processo que cruza variáveis identificáveis nos registros de diferentes sistemas de saúde para identificar as mesmas mulheres em múltiplas bases de dados. Permite comparar o perfil e os desfechos de mulheres que tiveram notificação de violência com aquelas que não tiveram. Dados de 2019–2025 para comparativos; 2016–2025 para indicadores gerais.</p>
+    </div>
+    <div class="iblock">
+      <h4>De onde vêm os dados?</h4>
+      <div style="margin-bottom:8px;">
+        <span class="src-tag">SINAN Violências</span><span class="src-tag">SINAN Intox. Exógena</span>
+        <span class="src-tag">SIM</span><span class="src-tag">SIH</span>
+      </div>
+      <p>Quatro sistemas cruzados via linkage. Dicionário CID-10: mapeamento de códigos para descrições resumidas elaborado pela UFMG.</p>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-hd"><span class="stage-num">1 · SQL / ETL</span><h3>Fontes dos dados</h3></div>
+    <div class="stage-note"><code>base_linkage_feminino</code> construída via query que cruza <code>pessoa_publica</code> com <code>registro_linkage</code>, agregando flags de presença por sistema.</div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Coluna</th><th>Tabela de origem</th><th>Descrição</th></tr></thead>
+      <tbody>
+        <tr><td>id_pessoa</td><td>pessoa_publica INNER JOIN registro_linkage</td><td>Identificador único da mulher</td></tr>
+        <tr><td>in_sinan_viol</td><td>base_linkage_feminino</td><td>Flag: presente no SINAN Violências</td></tr>
+        <tr><td>in_sim</td><td>base_linkage_feminino</td><td>Flag: presente no SIM (óbitos)</td></tr>
+        <tr><td>in_sih</td><td>base_linkage_feminino</td><td>Flag: presente no SIH (internações)</td></tr>
+        <tr><td>in_esus</td><td>base_linkage_feminino</td><td>Flag: presente no e-SUS APS</td></tr>
+        <tr><td>banco</td><td>base_linkage</td><td>Sistema de origem do registro</td></tr>
+        <tr><td>cd_causabas</td><td>base_linkage</td><td>Código CID-10 da causa (óbito ou internação)</td></tr>
+        <tr><td>FL_SINAN_VIOL, FL_SINAN_IEXO</td><td>base_linkage</td><td>Flags de presença por tipo de SINAN</td></tr>
+        <tr><td>rotulo_viol_interpessoal</td><td>linkage_compilado</td><td>Flag: tem notificação de violência interpessoal</td></tr>
+        <tr><td>fl_esus, fl_ob_not_externas</td><td>linkage_compilado</td><td>Flags de e-SUS e óbito por causas externas</td></tr>
+        <tr><td>raca_cor, faixa_etaria_padrao</td><td>linkage_compilado</td><td>Dados demográficos agregados</td></tr>
+        <tr><td>registros, n_pessoas</td><td>linkage_compilado</td><td>Contagens de registros e mulheres únicas</td></tr>
+        <tr><td>cd_causabas → causa_resumida</td><td>icd_map_ufmg.Rdata</td><td>Dicionário CID-10 → descrição resumida UFMG</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="stage blue">
+    <div class="stage-hd"><span class="stage-num">2 · Preparação</span><h3>Objetos derivados</h3></div>
+    <div class="stage-note"><code>df_obitos</code> e <code>df_internacoes</code> recebem join com <code>icd_map</code> para obter <code>causa_resumida</code>.</div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Objeto</th><th>Lógica</th></tr></thead>
+      <tbody>
+        <tr><td>linkage_kpi</td><td>select() de linkage_compilado: rotulo_viol_interpessoal, fl_esus, raca_cor, faixa_etaria_padrao, fl_ob_not_externas, registros, n_pessoas</td></tr>
+        <tr><td>df_obitos</td><td>base_linkage |&gt; filter(banco==SIM) |&gt; left_join(icd_map, by=cd_causabas)</td></tr>
+        <tr><td>df_internacoes</td><td>base_linkage |&gt; filter(banco==SIH) |&gt; left_join(icd_map, by=cd_causabas)</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="stage gray">
+    <div class="stage-hd"><span class="stage-num">3 · Filtros</span><h3>Filtros reativos</h3></div>
+    <div class="stage-note">Filtros aplicam-se apenas aos KPIs e gráficos demográficos. Bolhas e comparativo SINAN usam dados estáticos.</div>
+    <div class="tbl-wrap"><table class="lbl">
+      <thead><tr><th>Filtro</th><th>O que faz</th><th>Input</th><th>Variável</th></tr></thead>
+      <tbody>
+        <tr><td>Faixa etária</td><td>Restringe KPIs e gráficos demográficos pela faixa de idade</td><td><code>filtro_idade</code></td><td><code>faixa_etaria_padrao</code></td></tr>
+        <tr><td>Raça/cor</td><td>Restringe KPIs e gráficos demográficos pela raça</td><td><code>filtro_raca</code></td><td><code>raca_cor</code></td></tr>
+        <tr><td>Presença e-SUS</td><td>Inclui ou exclui mulheres com atendimento no e-SUS APS</td><td><code>filtro_esus</code></td><td><code>fl_esus</code></td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-hd"><span class="stage-num">4 · Visualizações</span><h3>Gráficos e tabelas</h3></div>
+    <div class="tbl-wrap"><table class="lbl">
+      <thead><tr><th>Visualização</th><th>O que mostra</th><th>Pré-processamento</th><th>Filtros</th></tr></thead>
+      <tbody>
+        <tr><td>KPI cards</td><td>Total de registros, mulheres únicas, mulheres com notificação de violência e óbitos por agressão entre notificadas</td><td>kpi_filtrada(): sum(registros), sum(n_pessoas), rotulo_viol_interpessoal==1, fl_ob_not_externas==1</td><td>filtro_idade, raça, e-SUS</td></tr>
+        <tr><td>Distribuição por faixa etária</td><td>Comparação da distribuição etária entre mulheres com e sem notificação de violência. Download .xlsx.</td><td>faixa_etaria_graf_npessoas() → soma n_pessoas, calcula pct por grupo</td><td>filtro_idade, raça, e-SUS</td></tr>
+        <tr><td>Distribuição por raça/cor</td><td>Comparação da distribuição por raça/cor entre mulheres com e sem notificação. Download .xlsx.</td><td>raca_cor_graf_npessoas() → soma n_pessoas, calcula pct por grupo</td><td>filtro_idade, raça, e-SUS</td></tr>
+        <tr><td>Causas de óbito por grupo</td><td>Proporções de cada causa de óbito entre 3 grupos: com violência, com intoxicação, sem notificação. Período 2019–2025. Download .xlsx.</td><td>tab_1(causa_resumida) por grupo → bind_rows → bubble chart</td><td>Nenhum (estático)</td></tr>
+        <tr><td>Causas de internação por grupo</td><td>Mesmo formato para internações hospitalares. Período 2019–2025. Download .xlsx.</td><td>tab_1(causa_resumida) por grupo → bind_rows → bubble chart</td><td>Nenhum (estático)</td></tr>
+        <tr><td>SINAN Violências vs. Intoxicação</td><td>Mulheres exclusivamente no SINAN Violências, exclusivamente no SINAN Intoxicação e em ambos. Período 2019–2025. Download .xlsx.</td><td>pré-computado</td><td>Nenhum (estático)</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="stage image">
+    <div class="stage-hd"><span class="stage-num">Fluxo de dados</span><h3>Diagrama de fluxo — Página 6</h3></div>
+    <div class="fluxo-wrap"><img src="img_pages/page_17.png" alt="Fluxo de Dados — Página 6: Análise do Linkage"></div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════ PAGE 7 ══════════════ -->
+<div id="view-p7" class="view">
+<div class="page-view">
+  <div class="page-header">
+    <div class="page-badge">PÁG 07</div>
+    <h2>Linha da Vida</h2>
+  </div>
+  <div class="page-intro">
+    <div class="iblock">
+      <h4>O que é essa página?</h4>
+      <p>Permite visualizar a trajetória individual de cada mulher ao longo do tempo, mostrando em que sistemas de saúde ela apareceu e quando. Cada linha representa uma mulher; cada ponto representa um evento registrado. Resulta do processo de linkage — cruzamento de múltiplos bancos de dados.</p>
+    </div>
+    <div class="iblock">
+      <h4>De onde vêm os dados?</h4>
+      <ul>
+        <li><strong>SINAN Violências</strong> — ✕ vermelho — Notificação de violência doméstica ou interpessoal</li>
+        <li><strong>SIH</strong> — ▲ amarelo — Internação hospitalar</li>
+        <li><strong>SIM</strong> — ■ azul escuro — Óbito</li>
+        <li><strong>SINAN Intox. Exógena</strong> — ◆ azul claro — Notificação de intoxicação</li>
+        <li><strong>e-SUS APS</strong> — ● roxo — Atendimento na atenção básica</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-hd"><span class="stage-num">1 · SQL / ETL</span><h3>Fontes dos dados</h3></div>
+    <div class="stage-note">Query <code>linha_vida_esus4</code>: <code>registro_linkage</code> INNER JOIN <code>pessoa_publica</code>; filtra mulheres com ≥1 notificação de violência.</div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Coluna</th><th>Tabela de origem</th><th>Descrição</th></tr></thead>
+      <tbody>
+        <tr><td>id_pessoa, id_pareamento</td><td>registro_linkage INNER JOIN pessoa_publica</td><td>Identificadores únicos da mulher e do registro</td></tr>
+        <tr><td>banco</td><td>registro_linkage</td><td>Sistema de origem do evento</td></tr>
+        <tr><td>dt_evento_inicio, dt_evento_fim</td><td>registro_linkage</td><td>Datas de início e fim do evento</td></tr>
+        <tr><td>dt_comum</td><td>Derivada (coalesce)</td><td>Data principal do evento — coalesce das datas disponíveis</td></tr>
+        <tr><td>ds_raca_padronizada</td><td>pessoa_publica</td><td>Raça/cor padronizada</td></tr>
+        <tr><td>nu_idade_anos</td><td>pessoa_publica</td><td>Idade em anos</td></tr>
+        <tr><td>nome_ultimo_bairro</td><td>pessoa_publica</td><td>Bairro do último endereço (NA → Sem informação)</td></tr>
+        <tr><td>fl_sinan_viol, fl_sim, fl_sih, fl_sinan_iexo, fl_esus_aps</td><td>Derivadas em linha_vida.R</td><td>Flags de presença por sistema (group_by id_pessoa)</td></tr>
+        <tr><td>so_sinan, so_esus_aps</td><td>Derivadas em linha_vida.R</td><td>Flags de exclusividade: só SINAN / só e-SUS</td></tr>
+        <tr><td>fl_les_autop, fl_viol_*</td><td>registro_linkage</td><td>Flags de lesão autoprovocada e tipo de violência</td></tr>
+        <tr><td>texto_final</td><td>Derivado (HTML)</td><td>Resumo textual da trajetória da mulher</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="stage blue">
+    <div class="stage-hd"><span class="stage-num">2 · Preparação</span><h3>Derivações</h3></div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Coluna derivada</th><th>Lógica</th></tr></thead>
+      <tbody>
+        <tr><td>fl_esus_aps</td><td>group_by(id_pessoa) |&gt; mutate(any(banco == e-SUS APS))</td></tr>
+        <tr><td>so_sinan</td><td>group_by |&gt; mutate(all(banco == SINAN_VIOL))</td></tr>
+        <tr><td>so_esus_aps</td><td>group_by |&gt; mutate(all(banco == e-SUS APS))</td></tr>
+        <tr><td>faixa_etaria_padrao</td><td>faixa_etaria_func(idade_minima) — menor idade registrada por pessoa</td></tr>
+        <tr><td>texto_banco / cor_banco</td><td>Labels e cores por sistema de origem</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="stage gray">
+    <div class="stage-hd"><span class="stage-num">3 · Filtros</span><h3>Filtros reativos</h3></div>
+    <div class="stage-note">Filtros aplicados via botão Filtrar. <code>filtro_banco</code> suporta seleção exclusiva via flags <code>so_sinan</code>/<code>so_esus_aps</code>.</div>
+    <div class="tbl-wrap"><table class="lbl">
+      <thead><tr><th>Filtro</th><th>O que faz</th><th>Input</th><th>Variável</th></tr></thead>
+      <tbody>
+        <tr><td>Raça/cor</td><td>Mantém só mulheres da raça selecionada</td><td><code>filtro_raca</code></td><td><code>ds_raca_padronizada</code></td></tr>
+        <tr><td>Faixa etária</td><td>Mantém mulheres dentro da faixa de idade mínima</td><td><code>filtro_faixa_etaria</code></td><td><code>faixa_etaria_padrao</code></td></tr>
+        <tr><td>Sistema de origem</td><td>Exibe mulheres somente no SINAN, somente no e-SUS ou em ambos</td><td><code>filtro_banco</code></td><td><code>so_sinan / so_esus_aps / fl_esus_aps</code></td></tr>
+        <tr><td>N° notificações</td><td>Mantém mulheres com número de notificações no intervalo</td><td><code>filtro_n_notif</code> (slider)</td><td>contagem SINAN_VIOL por id_pessoa</td></tr>
+        <tr><td>Período</td><td>Mantém eventos dentro do intervalo de datas</td><td><code>filtro_periodo</code> (dateRange)</td><td><code>dt_evento_inicio</code></td></tr>
+        <tr><td>Bairro</td><td>Mantém mulheres do bairro selecionado</td><td><code>filtro_bairro</code></td><td><code>nome_ultimo_bairro</code></td></tr>
+        <tr><td>Unidade notificadora</td><td>Mantém mulheres atendidas na unidade selecionada</td><td><code>filtro_unidade</code></td><td><code>cd_cnes_unid_not</code></td></tr>
+        <tr><td>ID Pessoa</td><td>Filtra diretamente pelo ID da mulher</td><td><code>filtro_id_pessoa</code></td><td><code>id_pessoa</code></td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-hd"><span class="stage-num">4 · Visualizações</span><h3>Gráficos e painel de detalhes</h3></div>
+    <div class="tbl-wrap"><table class="lbl">
+      <thead><tr><th>Visualização</th><th>O que mostra</th><th>Pré-processamento</th><th>Filtros</th></tr></thead>
+      <tbody>
+        <tr><td>Linha da vida</td><td>Cada linha horizontal é uma mulher. Os pontos mostram eventos nos diferentes sistemas ao longo do tempo, com cor e forma por sistema. Eixo X: dt_comum; Eixo Y: id_pareamento (ordenado).</td><td>df_linha_filtrado()</td><td>Todos os filtros</td></tr>
+        <tr><td>Painel de detalhes (ao clicar)</td><td>Painel lateral exibido ao clicar em um ponto: raça/cor, idade e resumo textual da mulher selecionada.</td><td>—</td><td>—</td></tr>
+        <tr><td>Resumo do recorte (KPIs)</td><td>N° de mulheres únicas, total de registros SINAN Violências, máximo / média / mediana de notificações por mulher.</td><td>n_distinct(id_pessoa), nrow(SINAN_VIOL), max/mean/median(n_notif)</td><td>Todos os filtros</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="stage image">
+    <div class="stage-hd"><span class="stage-num">Fluxo de dados</span><h3>Diagrama de fluxo — Página 7</h3></div>
+    <div class="fluxo-wrap"><img src="img_pages/page_20.png" alt="Fluxo de Dados — Página 7: Linha da Vida"></div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════ PAGE 8 ══════════════ -->
+<div id="view-p8" class="view">
+<div class="page-view">
+  <div class="page-header">
+    <div class="page-badge">PÁG 08</div>
+    <h2>Subnotificações</h2>
+  </div>
+  <div class="page-intro">
+    <div class="iblock">
+      <h4>O que é essa página?</h4>
+      <p>Apresenta uma estimativa dos casos de violência prováveis que não foram notificados no SINAN. A análise parte do princípio de que mulheres que frequentam UBS e constam no e-SUS APS, mas não possuem notificação no SINAN, podem representar casos subnotificados. Dois níveis de análise: por bairro de residência e por unidade de saúde.</p>
+    </div>
+    <div class="iblock">
+      <h4>De onde vêm os dados?</h4>
+      <div style="margin-bottom:8px;">
+        <span class="src-tag">e-SUS APS</span><span class="src-tag">SINAN Violências</span>
+      </div>
+      <p>A diferença entre o esperado (com base no volume de usuárias do e-SUS) e o observado (notificações no SINAN) gera a estimativa de subnotificação.</p>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-hd"><span class="stage-num">1 · SQL / ETL</span><h3>Fontes dos dados</h3></div>
+    <div class="stage-note">Dois queries pré-computados combinando dados e-SUS APS, SINAN Violência e o output do modelo estatístico.</div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Coluna</th><th>Tabela de origem</th><th>Descrição</th></tr></thead>
+      <tbody>
+        <tr><td>neighborhood, pretty_name</td><td>dados_modelo_bairro</td><td>Identificador e nome legível do bairro</td></tr>
+        <tr><td>year</td><td>dados_modelo_bairro</td><td>Ano de referência</td></tr>
+        <tr><td>resident_esus_users</td><td>dados_modelo_bairro</td><td>Mulheres usuárias do e-SUS APS residentes no bairro</td></tr>
+        <tr><td>resident_sinan_notifications</td><td>dados_modelo_bairro</td><td>Notificações SINAN de violência de residentes</td></tr>
+        <tr><td>resident_underreported_cases</td><td>dados_modelo_bairro</td><td>Estimativa de casos subnotificados (modelo)</td></tr>
+        <tr><td>resident_suspected_cases</td><td>dados_modelo_bairro</td><td>Total de casos prováveis (notificados + subnotificados)</td></tr>
+        <tr><td>population</td><td>dados_modelo_bairro</td><td>População feminina do bairro</td></tr>
+        <tr><td>subnotification_rate</td><td>dados_modelo_bairro</td><td>Taxa de subnotificação (×10.000 para exibição)</td></tr>
+        <tr><td>cnes, unit_name</td><td>dados_modelo_ubs</td><td>Código CNES e nome da unidade de saúde</td></tr>
+        <tr><td>esus_users</td><td>dados_modelo_ubs</td><td>Mulheres usuárias do e-SUS APS na unidade</td></tr>
+        <tr><td>sinan_notifications</td><td>dados_modelo_ubs</td><td>Notificações SINAN na unidade</td></tr>
+        <tr><td>underreported_cases, suspected_cases</td><td>dados_modelo_ubs</td><td>Estimativas de subnotificação por UBS</td></tr>
+        <tr><td>subnotification_rate</td><td>dados_modelo_ubs</td><td>Taxa de subnotificação por UBS (×10.000)</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="stage blue">
+    <div class="stage-hd"><span class="stage-num">2 · Preparação</span><h3>Derivações</h3></div>
+    <div class="stage-empty">Nenhuma derivação adicional no R além do join com <code>pretty_name</code> para exibição legível do bairro.</div>
+  </div>
+
+  <div class="stage gray">
+    <div class="stage-hd"><span class="stage-num">3 · Filtros</span><h3>Filtros reativos</h3></div>
+    <div class="stage-note">O filtro de UBS depende do bairro selecionado: <code>observeEvent(neighborhood)</code> atualiza os choices de <code>unit_name</code> dinamicamente.</div>
+    <div class="tbl-wrap"><table class="lbl">
+      <thead><tr><th>Filtro</th><th>O que faz</th><th>Input</th><th>Variável</th></tr></thead>
+      <tbody>
+        <tr><td>Ano</td><td>Mantém somente o(s) ano(s) selecionado(s)</td><td><code>year</code> (pickerInput)</td><td><code>year</code></td></tr>
+        <tr><td>Bairro</td><td>Mantém somente o(s) bairro(s) selecionado(s)</td><td><code>neighborhood</code> (pickerInput)</td><td><code>neighborhood</code></td></tr>
+        <tr><td>UBS</td><td>Mantém somente a(s) unidade(s) selecionada(s) — choices atualizados por bairro</td><td><code>unit_name</code> (pickerInput)</td><td><code>unit_name</code></td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-hd"><span class="stage-num">4 · Visualizações</span><h3>Tabelas</h3></div>
+    <div class="tbl-wrap"><table class="lbl">
+      <thead><tr><th>Visualização</th><th>O que mostra</th><th>Colunas usadas</th><th>Filtros</th></tr></thead>
+      <tbody>
+        <tr><td>Tabela por bairro</td><td>Tabela interativa por bairro: usuárias da atenção básica, notificações SINAN, casos subnotificados, casos prováveis, população feminina e taxa por 10k. Download .xlsx.</td><td>modelo_bairro: pretty_name, year, resident_esus_users, resident_sinan_notifications, resident_underreported_cases, resident_suspected_cases, population, subnotification_rate</td><td>year, neighborhood</td></tr>
+        <tr><td>Tabela por UBS</td><td>Mesmas colunas da tabela de bairros, acrescentando código CNES e nome da unidade. Download .xlsx.</td><td>modelo_ubs: pretty_name (via join), year, cnes, unit_name, esus_users, sinan_notifications, underreported_cases, suspected_cases, subnotification_rate</td><td>year, neighborhood, unit_name</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="stage image">
+    <div class="stage-hd"><span class="stage-num">Fluxo de dados</span><h3>Diagrama de fluxo — Página 8</h3></div>
+    <div class="fluxo-wrap"><img src="img_pages/page_22.png" alt="Fluxo de Dados — Página 8: Subnotificações"></div>
+  </div>
+</div>
+</div>
+
+</main>
+
+<script>
+(function () {
+  function showView(id) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+    var view = document.getElementById('view-' + id);
+    if (view) { view.classList.add('active'); document.getElementById('main').scrollTop = 0; window.scrollTo(0,0); }
+    var link = document.querySelector('.nav-link[data-view="' + id + '"]');
+    if (link) link.classList.add('active');
+  }
+
+  // sidebar links
+  document.querySelectorAll('.nav-link').forEach(function(el) {
+    el.addEventListener('click', function() { showView(this.dataset.view); });
+  });
+
+  // index cards on home
+  document.querySelectorAll('.index-item').forEach(function(el) {
+    el.addEventListener('click', function() { showView(this.dataset.view); });
+  });
+
+  // default
+  showView('home');
+})();
+</script>
+
+</body>
+</html>

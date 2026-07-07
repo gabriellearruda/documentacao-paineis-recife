@@ -1,0 +1,103 @@
+<svg viewBox="0 0 820 460" xmlns="http://www.w3.org/2000/svg" font-family="Arial, sans-serif">
+  <title>Arquitetura de Dados – Painel Vigilância Recife</title>
+
+  <rect width="820" height="460" fill="#f8fafc" rx="8"/>
+
+  <!-- Column labels -->
+  <text x="90" y="20" text-anchor="middle" font-size="11" fill="#6b7280" font-weight="600">FONTES</text>
+  <text x="350" y="20" text-anchor="middle" font-size="11" fill="#6b7280" font-weight="600">BANCO DE DADOS</text>
+  <text x="560" y="18" text-anchor="middle" font-size="11" fill="#6b7280" font-weight="600">VIEWS SQL</text>
+  <text x="560" y="30" text-anchor="middle" font-size="9.5" fill="#9ca3af" font-style="italic">Rodado diariamente</text>
+  <text x="730" y="20" text-anchor="middle" font-size="11" fill="#6b7280" font-weight="600">PAINEL</text>
+
+  <!-- Divider lines -->
+  <line x1="210" y1="10" x2="210" y2="450" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="4,4"/>
+  <line x1="470" y1="10" x2="470" y2="450" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="4,4"/>
+  <line x1="660" y1="10" x2="660" y2="450" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="4,4"/>
+
+  <!-- SOURCE BOXES -->
+  <rect x="20" y="48" width="140" height="34" rx="6" fill="#121E87"/>
+  <text x="90" y="69" text-anchor="middle" font-size="10.5" fill="white" font-weight="600">SINAN Violência</text>
+
+  <rect x="20" y="96" width="140" height="34" rx="6" fill="#121E87"/>
+  <text x="90" y="117" text-anchor="middle" font-size="10.5" fill="white" font-weight="600">SINAN Intox. Exógena</text>
+
+  <rect x="20" y="144" width="140" height="34" rx="6" fill="#121E87"/>
+  <text x="90" y="165" text-anchor="middle" font-size="10.5" fill="white" font-weight="600">SIH</text>
+
+  <rect x="20" y="192" width="140" height="34" rx="6" fill="#121E87"/>
+  <text x="90" y="213" text-anchor="middle" font-size="10.5" fill="white" font-weight="600">SIM</text>
+
+  <rect x="20" y="240" width="140" height="34" rx="6" fill="#121E87"/>
+  <text x="90" y="261" text-anchor="middle" font-size="10.5" fill="white" font-weight="600">e-SUS APS</text>
+
+  <rect x="20" y="288" width="140" height="34" rx="6" fill="#121E87"/>
+  <text x="90" y="309" text-anchor="middle" font-size="10.5" fill="white" font-weight="600">CNES</text>
+
+  <!-- Arrows: fontes → banco -->
+  <line x1="160" y1="65"  x2="248" y2="205" stroke="#121E87" stroke-width="1.4" opacity="0.35"/>
+  <line x1="160" y1="113" x2="248" y2="205" stroke="#121E87" stroke-width="1.4" opacity="0.35"/>
+  <line x1="160" y1="161" x2="248" y2="205" stroke="#121E87" stroke-width="1.4" opacity="0.35"/>
+  <line x1="160" y1="209" x2="248" y2="205" stroke="#121E87" stroke-width="1.4" opacity="0.35"/>
+  <line x1="160" y1="257" x2="248" y2="210" stroke="#121E87" stroke-width="1.4" opacity="0.35"/>
+  <line x1="160" y1="305" x2="248" y2="215" stroke="#121E87" stroke-width="1.4" opacity="0.35"/>
+
+  <!-- DATABASE cylinder -->
+  <rect x="248" y="165" width="144" height="80" rx="4" fill="#1e3a8a"/>
+  <ellipse cx="320" cy="165" rx="72" ry="16" fill="#2563eb"/>
+  <ellipse cx="320" cy="245" rx="72" ry="16" fill="#1e40af"/>
+  <text x="320" y="205" text-anchor="middle" font-size="11" fill="white" font-weight="700">PostgreSQL</text>
+
+  <!-- Arrows: banco → views -->
+  <line x1="392" y1="185" x2="482" y2="72"  stroke="#6b7280" stroke-width="1.2" opacity="0.45"/>
+  <line x1="392" y1="190" x2="482" y2="120" stroke="#6b7280" stroke-width="1.2" opacity="0.45"/>
+  <line x1="392" y1="198" x2="482" y2="168" stroke="#6b7280" stroke-width="1.2" opacity="0.45"/>
+  <line x1="392" y1="205" x2="482" y2="216" stroke="#6b7280" stroke-width="1.2" opacity="0.45"/>
+  <line x1="392" y1="212" x2="482" y2="264" stroke="#6b7280" stroke-width="1.2" opacity="0.45"/>
+  <line x1="392" y1="218" x2="482" y2="312" stroke="#6b7280" stroke-width="1.2" opacity="0.45"/>
+  <line x1="392" y1="223" x2="482" y2="360" stroke="#6b7280" stroke-width="1.2" opacity="0.45"/>
+  <line x1="392" y1="228" x2="482" y2="408" stroke="#6b7280" stroke-width="1.2" opacity="0.45"/>
+
+  <!-- VIEW BOXES -->
+  <rect x="482" y="52"  width="162" height="28" rx="5" fill="#FF5054"/>
+  <text x="563" y="70"  text-anchor="middle" font-size="9" fill="white" font-weight="600">vw_mapa_violencia</text>
+
+  <rect x="482" y="100" width="162" height="28" rx="5" fill="#FF5054"/>
+  <text x="563" y="118" text-anchor="middle" font-size="9" fill="white" font-weight="600">vw_sinan_violencia</text>
+
+  <rect x="482" y="148" width="162" height="28" rx="5" fill="#FF5054"/>
+  <text x="563" y="166" text-anchor="middle" font-size="9" fill="white" font-weight="600">vw_sinan_intoxicacao</text>
+
+  <rect x="482" y="196" width="162" height="28" rx="5" fill="#FF5054"/>
+  <text x="563" y="214" text-anchor="middle" font-size="9" fill="white" font-weight="600">vw_hospitalizacoes</text>
+
+  <rect x="482" y="244" width="162" height="28" rx="5" fill="#FF5054"/>
+  <text x="563" y="262" text-anchor="middle" font-size="9" fill="white" font-weight="600">vw_mortalidade</text>
+
+  <rect x="482" y="292" width="162" height="28" rx="5" fill="#FF5054"/>
+  <text x="563" y="310" text-anchor="middle" font-size="9" fill="white" font-weight="600">vw_linkage</text>
+
+  <rect x="482" y="340" width="162" height="28" rx="5" fill="#FF5054"/>
+  <text x="563" y="358" text-anchor="middle" font-size="9" fill="white" font-weight="600">vw_linha_vida</text>
+
+  <rect x="482" y="388" width="162" height="28" rx="5" fill="#FF5054"/>
+  <text x="563" y="406" text-anchor="middle" font-size="9" fill="white" font-weight="600">vw_subnotificacoes</text>
+
+  <!-- Arrows: views → painel -->
+  <line x1="644" y1="66"  x2="668" y2="200" stroke="#FF5054" stroke-width="1.2" opacity="0.5"/>
+  <line x1="644" y1="114" x2="668" y2="200" stroke="#FF5054" stroke-width="1.2" opacity="0.5"/>
+  <line x1="644" y1="162" x2="668" y2="200" stroke="#FF5054" stroke-width="1.2" opacity="0.5"/>
+  <line x1="644" y1="210" x2="668" y2="200" stroke="#FF5054" stroke-width="1.2" opacity="0.5"/>
+  <line x1="644" y1="258" x2="668" y2="205" stroke="#FF5054" stroke-width="1.2" opacity="0.5"/>
+  <line x1="644" y1="306" x2="668" y2="210" stroke="#FF5054" stroke-width="1.2" opacity="0.5"/>
+  <line x1="644" y1="354" x2="668" y2="215" stroke="#FF5054" stroke-width="1.2" opacity="0.5"/>
+  <line x1="644" y1="402" x2="668" y2="220" stroke="#FF5054" stroke-width="1.2" opacity="0.5"/>
+
+  <!-- PAINEL – single card -->
+  <rect x="668" y="160" width="136" height="70" rx="8" fill="#121E87"/>
+  <text x="736" y="191" text-anchor="middle" font-size="12" fill="white" font-weight="700">Painel no</text>
+  <text x="736" y="210" text-anchor="middle" font-size="12" fill="#93c5fd" font-weight="700">Power BI</text>
+
+  <!-- arrowhead into painel -->
+  <polygon points="668,200 660,195 660,205" fill="#FF5054" opacity="0.7"/>
+</svg>

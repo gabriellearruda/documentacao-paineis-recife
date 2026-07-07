@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+
+# Versões intermediárias
+*_v2.docx
+*_v2_new.docx
+*_v3.docx
+*_v4.docx
+*_v4.pdf
+*Copia.pdf
+patch_docx*.py
+
+# Arquivos temporários de extração
+tecnico_*.json
+tecnico_data.js
+pages_data.json
