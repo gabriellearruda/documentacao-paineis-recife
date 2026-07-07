@@ -277,6 +277,7 @@ a:focus-visible { outline:2px solid var(--teal); outline-offset:2px; border-radi
     <div class="nav-link" data-view="p8"><span class="nav-num">08</span>Subnotificações</div>
 
     <div class="nav-label" style="margin-top:6px;">Banco de Dados</div>
+    <div class="nav-link" data-view="fluxo">Fluxo de Dados</div>
     <div class="nav-link" data-view="linkage">Algoritmo de Linkage</div>
     <div class="nav-link" data-view="arq">Pipeline de Classificação</div>
   </div>
@@ -309,6 +310,7 @@ a:focus-visible { outline:2px solid var(--teal); outline-offset:2px; border-radi
       <div class="index-item" data-view="p6"><span class="n">06</span><span class="t">Análise do Linkage</span></div>
       <div class="index-item" data-view="p7"><span class="n">07</span><span class="t">Linha da Vida</span></div>
       <div class="index-item" data-view="p8"><span class="n">08</span><span class="t">Subnotificações</span></div>
+      <div class="index-item" data-view="fluxo"><span class="n">BD</span><span class="t">Fluxo de Dados</span></div>
       <div class="index-item" data-view="linkage"><span class="n">BD</span><span class="t">Algoritmo de Linkage</span></div>
       <div class="index-item" data-view="arq"><span class="n">BD</span><span class="t">Pipeline de Classificação</span></div>
     </div>
@@ -1005,6 +1007,254 @@ a:focus-visible { outline:2px solid var(--teal); outline-offset:2px; border-radi
 </div>
 </div>
 
+<!-- ══════════════ FLUXO DE DADOS ══════════════ -->
+<div id="view-fluxo" class="view">
+<div class="page-view">
+  <div class="page-header">
+    <div class="page-badge">BD</div>
+    <h2>Fluxo de Dados</h2>
+  </div>
+  <div class="page-intro">
+    <div class="iblock">
+      <h4>O que mostra?</h4>
+      <p>Caminho dos dados desde as fontes brutas (SINAN, SIH, SIM, e-SUS APS, CNES), pelo banco de dados PostgreSQL, pelos arquivos R intermediários (<code>.qs</code>), até as páginas do painel. Clique em qualquer bloco para detalhes.</p>
+    </div>
+    <div class="iblock">
+      <h4>Como ler?</h4>
+      <p>Cada linha é um sistema de origem. As setas sólidas mostram o fluxo direto para as páginas P2–P5. O bloco inferior concentra o <strong>linkage probabilístico</strong>, que alimenta P1, P6, P7 e P8 com dados cruzados de todos os sistemas.</p>
+    </div>
+  </div>
+
+  <div class="stage" style="padding:1.2rem 1.4rem 1.4rem;">
+    <div class="stage-hd"><span class="stage-num">Diagrama interativo</span><h3>Clique em qualquer bloco para detalhes</h3></div>
+    <div style="overflow-x:auto;margin-top:1rem;">
+      <svg id="fl-svg" viewBox="0 0 760 454" xmlns="http://www.w3.org/2000/svg"
+           style="width:100%;max-width:900px;display:block;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;">
+        <defs>
+          <marker id="flarr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+            <path d="M1 1.5L9 5L1 8.5" fill="none" stroke="#8a8a8a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+        </defs>
+        <style>
+          .flt12{font-size:12px;font-weight:600} .flt10{font-size:10px;font-weight:500}
+          .flt8{font-size:8.5px} .flt8b{font-size:8.5px;font-weight:700}
+          .fln{stroke:#9a9a9a;stroke-width:1.2;fill:none;marker-end:url(#flarr)}
+          .fln2{stroke:#9a9a9a;stroke-width:1.2;fill:none}
+          .fld{stroke:#9a9a9a;stroke-width:1;fill:none;stroke-dasharray:4 3;marker-end:url(#flarr)}
+          .fld2{stroke:#9a9a9a;stroke-width:1;fill:none;stroke-dasharray:4 3}
+          .fdv{stroke:#c8c4b8;stroke-width:0.8;stroke-dasharray:4 3;fill:none}
+          .flhit{fill:transparent;cursor:pointer}.flhit:hover{fill:rgba(16,27,122,0.06)}
+        </style>
+
+        <!-- Selection highlight -->
+        <rect id="fl-sel" fill="none" stroke="#101B7A" stroke-width="2" stroke-dasharray="5 3" rx="6" opacity="0" pointer-events="none"/>
+
+        <!-- ── Section labels ── -->
+        <text class="flt10" x="57"  y="16" text-anchor="middle" fill="#101B7A" font-weight="700" letter-spacing="0.06em">FONTES</text>
+        <text class="flt10" x="202" y="16" text-anchor="middle" fill="#534AB7" font-weight="700" letter-spacing="0.06em">BANCO DE DADOS</text>
+        <text class="flt10" x="343" y="16" text-anchor="middle" fill="#1D9E75" font-weight="700" letter-spacing="0.06em">ARQUIVOS R</text>
+        <text class="flt10" x="479" y="16" text-anchor="middle" fill="#993C1D" font-weight="700" letter-spacing="0.06em">PÁGINAS</text>
+
+        <!-- Dividers -->
+        <line class="fdv" x1="120" y1="22" x2="120" y2="444"/>
+        <line class="fdv" x1="290" y1="22" x2="290" y2="444"/>
+        <line class="fdv" x1="403" y1="22" x2="403" y2="444"/>
+
+        <!-- ── SOURCE BOXES (C1: x=4, w=107) ── -->
+        <g fill="#E6E8F5" stroke="#101B7A" stroke-width="1">
+          <rect x="4"  y="28"  width="107" height="34" rx="5"/>
+          <rect x="4"  y="74"  width="107" height="34" rx="5"/>
+          <rect x="4"  y="120" width="107" height="34" rx="5"/>
+          <rect x="4"  y="166" width="107" height="34" rx="5"/>
+          <rect x="4"  y="212" width="107" height="34" rx="5"/>
+          <rect x="4"  y="258" width="107" height="34" rx="5"/>
+        </g>
+        <g class="flt12" fill="#101B7A" text-anchor="middle">
+          <text x="57" y="47">SINAN Viol.</text>
+          <text x="57" y="93">SINAN Iexo</text>
+          <text x="57" y="139">SIH</text>
+          <text x="57" y="183">SIM</text>
+          <text x="57" y="229">e-SUS APS</text>
+          <text x="57" y="275">CNES</text>
+        </g>
+        <g class="flt8" fill="#4A6FA5" text-anchor="middle">
+          <text x="57" y="59">notificações de violência</text>
+          <text x="57" y="105">intoxicação exógena</text>
+          <text x="57" y="151">internações hospitalares</text>
+          <text x="57" y="195">óbitos</text>
+          <text x="57" y="241">atenção primária</text>
+          <text x="57" y="287">estabelecimentos de saúde</text>
+        </g>
+
+        <!-- ── BD VIEW BOXES (C2: x=123, w=158) ── -->
+        <g fill="#EEEDFE" stroke="#534AB7" stroke-width="1">
+          <rect x="123" y="28"  width="158" height="34" rx="5"/>
+          <rect x="123" y="74"  width="158" height="34" rx="5"/>
+          <rect x="123" y="120" width="158" height="34" rx="5"/>
+          <rect x="123" y="166" width="158" height="34" rx="5"/>
+          <rect x="123" y="212" width="158" height="34" rx="5"/>
+          <rect x="123" y="258" width="158" height="34" rx="5"/>
+        </g>
+        <g class="flt8b" fill="#3C3489" text-anchor="middle">
+          <text x="202" y="43">ETL → tratado_sinan_viol</text>
+          <text x="202" y="89">ETL → tratado_sinan_iexo</text>
+          <text x="202" y="135">ETL → tratado_sih</text>
+          <text x="202" y="181">ETL → tratado_sim</text>
+          <text x="202" y="227">ETL → tratado_esus_aps</text>
+          <text x="202" y="271">estabelecimento_saude</text>
+        </g>
+        <g class="flt8" fill="#534AB7" text-anchor="middle">
+          <text x="202" y="55">→ _publica (view SQL)</text>
+          <text x="202" y="101">→ _publica (view SQL)</text>
+          <text x="202" y="147">→ _publica (view SQL)</text>
+          <text x="202" y="193">→ _publica (view SQL)</text>
+          <text x="202" y="239">→ _publica (view SQL)</text>
+          <text x="202" y="283">carregado do CNES</text>
+        </g>
+
+        <!-- ── FILE BOXES rows 1-4 (C3: x=293, w=100) ── -->
+        <g fill="#E3F5EF" stroke="#1D9E75" stroke-width="1">
+          <rect x="293" y="28"  width="100" height="34" rx="5"/>
+          <rect x="293" y="74"  width="100" height="34" rx="5"/>
+          <rect x="293" y="120" width="100" height="34" rx="5"/>
+          <rect x="293" y="166" width="100" height="34" rx="5"/>
+        </g>
+        <g class="flt12" fill="#156643" text-anchor="middle">
+          <text x="343" y="47">df_viol.qs</text>
+          <text x="343" y="93">df_iexo.qs</text>
+          <text x="343" y="139">df_sih.qs</text>
+          <text x="343" y="183">df_sim.qs</text>
+        </g>
+        <g class="flt8" fill="#1D9E75" text-anchor="middle">
+          <text x="343" y="56">carregado em app.R</text>
+          <text x="343" y="102">carregado em app.R</text>
+          <text x="343" y="148">carregado em app.R</text>
+          <text x="343" y="175">+ icd_map_ufmg.Rdata</text>
+        </g>
+
+        <!-- ── PAGE BOXES rows 1-4 (C4: x=406, w=145) ── -->
+        <g fill="#FAECE7" stroke="#F08373" stroke-width="1">
+          <rect x="406" y="28"  width="145" height="34" rx="5"/>
+          <rect x="406" y="74"  width="145" height="34" rx="5"/>
+          <rect x="406" y="120" width="145" height="34" rx="5"/>
+          <rect x="406" y="166" width="145" height="34" rx="5"/>
+        </g>
+        <g class="flt10" fill="#993C1D" font-weight="700" text-anchor="middle">
+          <text x="478" y="44">P2 · SINAN Violência</text>
+          <text x="478" y="90">P3 · SINAN Intox. Exógena</text>
+          <text x="478" y="136">P4 · Hospitalizações</text>
+          <text x="478" y="182">P5 · Mortalidade</text>
+        </g>
+        <g class="flt8" fill="#D06040" text-anchor="middle">
+          <text x="478" y="56">série histórica · filtros demográficos</text>
+          <text x="478" y="102">série histórica · filtros demográficos</text>
+          <text x="478" y="148">internações · causas CID-10</text>
+          <text x="478" y="194">óbitos · causas CID-10</text>
+        </g>
+
+        <!-- ── LINKAGE BAND ── -->
+        <rect x="4" y="304" width="389" height="144" rx="6"
+              fill="rgba(83,74,183,0.06)" stroke="#534AB7" stroke-width="1.2" stroke-dasharray="5 3"/>
+        <text class="flt10" x="154" y="321" text-anchor="middle" fill="#3C3489" font-weight="700">Linkage Probabilístico + NLP + Rotulagem</text>
+        <text class="flt8"  x="154" y="333" text-anchor="middle" fill="#534AB7">SIM · SINAN Viol · SINAN Iexo · SIH · e-SUS APS · CNES</text>
+        <text class="flt8"  x="154" y="345" text-anchor="middle" fill="#534AB7">→ registro_linkage · rotulo · pessoa · sentenca · token</text>
+
+        <!-- Linkage file boxes -->
+        <g fill="#E3F5EF" stroke="#1D9E75" stroke-width="1">
+          <rect x="293" y="356" width="100" height="30" rx="5"/>
+          <rect x="293" y="396" width="100" height="30" rx="5"/>
+        </g>
+        <text class="flt8b" x="343" y="370" text-anchor="middle" fill="#156643">pontos_viol_real.qs</text>
+        <text class="flt8"  x="343" y="380" text-anchor="middle" fill="#1D9E75">linkage + coord. CNES</text>
+        <text class="flt8b" x="343" y="410" text-anchor="middle" fill="#156643">linkage_compilado.qs</text>
+        <text class="flt8"  x="343" y="420" text-anchor="middle" fill="#1D9E75">flags · rótulos · demog.</text>
+
+        <!-- Linkage page boxes -->
+        <g fill="#FAECE7" stroke="#F08373" stroke-width="1">
+          <rect x="406" y="316" width="145" height="28" rx="5"/>
+          <rect x="406" y="352" width="145" height="28" rx="5"/>
+          <rect x="406" y="384" width="145" height="28" rx="5"/>
+          <rect x="406" y="416" width="145" height="28" rx="5"/>
+        </g>
+        <g class="flt10" fill="#993C1D" font-weight="700" text-anchor="middle">
+          <text x="478" y="334">P1 · Mapa da Violência</text>
+          <text x="478" y="370">P6 · Análise do Linkage</text>
+          <text x="478" y="402">P7 · Linha da Vida</text>
+          <text x="478" y="434">P8 · Subnotificações</text>
+        </g>
+
+        <!-- ── ARROWS rows 1-4 (solid) ── -->
+        <line class="fln" x1="111" y1="45"  x2="123" y2="45"/>
+        <line class="fln" x1="111" y1="91"  x2="123" y2="91"/>
+        <line class="fln" x1="111" y1="137" x2="123" y2="137"/>
+        <line class="fln" x1="111" y1="183" x2="123" y2="183"/>
+
+        <line class="fln" x1="281" y1="45"  x2="293" y2="45"/>
+        <line class="fln" x1="281" y1="91"  x2="293" y2="91"/>
+        <line class="fln" x1="281" y1="137" x2="293" y2="137"/>
+        <line class="fln" x1="281" y1="183" x2="293" y2="183"/>
+
+        <line class="fln" x1="393" y1="45"  x2="406" y2="45"/>
+        <line class="fln" x1="393" y1="91"  x2="406" y2="91"/>
+        <line class="fln" x1="393" y1="137" x2="406" y2="137"/>
+        <line class="fln" x1="393" y1="183" x2="406" y2="183"/>
+
+        <!-- ARROWS rows 5-6 (dashed → into linkage band) -->
+        <line class="fln" x1="111" y1="229" x2="123" y2="229"/>
+        <line class="fln" x1="111" y1="275" x2="123" y2="275"/>
+        <polyline class="fld2" points="281,229 287,229 287,304"/>
+        <line class="fld" x1="287" y1="296" x2="287" y2="304"/>
+        <polyline class="fld2" points="281,275 287,275 287,304"/>
+
+        <!-- ARROWS linkage files → pages -->
+        <line class="fln" x1="393" y1="371" x2="406" y2="330"/>
+        <line class="fln" x1="393" y1="411" x2="406" y2="366"/>
+
+        <!-- Branch from linkage_compilado → P7, P8 -->
+        <line class="fln2" x1="393" y1="411" x2="401" y2="411"/>
+        <line class="fln2" x1="401" y1="398" x2="401" y2="430"/>
+        <line class="fln" x1="401" y1="398" x2="406" y2="398"/>
+        <line class="fln" x1="401" y1="430" x2="406" y2="430"/>
+
+        <!-- ── HIT AREAS ── -->
+        <rect class="flhit" x="4"  y="28"  width="107" height="34" rx="5" data-fl="src-viol"/>
+        <rect class="flhit" x="4"  y="74"  width="107" height="34" rx="5" data-fl="src-iexo"/>
+        <rect class="flhit" x="4"  y="120" width="107" height="34" rx="5" data-fl="src-sih"/>
+        <rect class="flhit" x="4"  y="166" width="107" height="34" rx="5" data-fl="src-sim"/>
+        <rect class="flhit" x="4"  y="212" width="107" height="34" rx="5" data-fl="src-esus"/>
+        <rect class="flhit" x="4"  y="258" width="107" height="34" rx="5" data-fl="src-cnes"/>
+        <rect class="flhit" x="123" y="28"  width="158" height="34" rx="5" data-fl="bd-viol"/>
+        <rect class="flhit" x="123" y="74"  width="158" height="34" rx="5" data-fl="bd-iexo"/>
+        <rect class="flhit" x="123" y="120" width="158" height="34" rx="5" data-fl="bd-sih"/>
+        <rect class="flhit" x="123" y="166" width="158" height="34" rx="5" data-fl="bd-sim"/>
+        <rect class="flhit" x="123" y="212" width="158" height="34" rx="5" data-fl="bd-esus"/>
+        <rect class="flhit" x="123" y="258" width="158" height="34" rx="5" data-fl="bd-cnes"/>
+        <rect class="flhit" x="293" y="28"  width="100" height="34" rx="5" data-fl="file-viol"/>
+        <rect class="flhit" x="293" y="74"  width="100" height="34" rx="5" data-fl="file-iexo"/>
+        <rect class="flhit" x="293" y="120" width="100" height="34" rx="5" data-fl="file-sih"/>
+        <rect class="flhit" x="293" y="166" width="100" height="34" rx="5" data-fl="file-sim"/>
+        <rect class="flhit" x="293" y="356" width="100" height="30" rx="5" data-fl="file-pontos"/>
+        <rect class="flhit" x="293" y="396" width="100" height="30" rx="5" data-fl="file-linkage"/>
+        <rect class="flhit" x="4"   y="304" width="289" height="144" rx="6" data-fl="linkage-band"/>
+        <rect class="flhit" x="406" y="28"  width="145" height="34" rx="5" data-fl="pg-p2"/>
+        <rect class="flhit" x="406" y="74"  width="145" height="34" rx="5" data-fl="pg-p3"/>
+        <rect class="flhit" x="406" y="120" width="145" height="34" rx="5" data-fl="pg-p4"/>
+        <rect class="flhit" x="406" y="166" width="145" height="34" rx="5" data-fl="pg-p5"/>
+        <rect class="flhit" x="406" y="316" width="145" height="28" rx="5" data-fl="pg-p1"/>
+        <rect class="flhit" x="406" y="352" width="145" height="28" rx="5" data-fl="pg-p6"/>
+        <rect class="flhit" x="406" y="384" width="145" height="28" rx="5" data-fl="pg-p7"/>
+        <rect class="flhit" x="406" y="416" width="145" height="28" rx="5" data-fl="pg-p8"/>
+      </svg>
+    </div>
+
+    <div class="lk-detail" id="fl-det">
+      <div class="lk-det-ttl" id="fl-det-ttl"></div>
+      <div class="lk-det-txt" id="fl-det-txt"></div>
+    </div>
+  </div>
+</div>
+</div>
+
 <!-- ══════════════ LINKAGE ALGORITHM ══════════════ -->
 <div id="view-linkage" class="view">
 <div class="page-view">
@@ -1312,6 +1562,66 @@ a:focus-visible { outline:2px solid var(--teal); outline-offset:2px; border-radi
 
   // default
   showView('home');
+})();
+
+// ── Fluxo de Dados diagram ──
+(function() {
+  var c = function(s) { return '<code style="background:#E8E5DE;color:#101B7A;padding:1px 4px;border-radius:3px;font-size:11px;">' + s + '</code>'; };
+  var FL_INFO = {
+    'src-viol':  { title: 'SINAN Violência', html: 'Fichas de notificação de violência interpessoal e autoprovocada. Variáveis: tipo de violência, agressor, local, data, dados da vítima. Filtrado para ' + c('sg_sexo = F') + ' e município de Recife.' },
+    'src-iexo':  { title: 'SINAN Intoxicação Exógena', html: 'Fichas de intoxicação por medicamentos, agrotóxicos, drogas ou substâncias químicas. Variáveis: agente tóxico, circunstância, hospitalização, desfecho.' },
+    'src-sih':   { title: 'SIH — Sistema de Informações Hospitalares', html: 'AIHs (Autorizações de Internação Hospitalar). Variáveis: diagnóstico CID-10, dias de internação, procedimento, estabelecimento.' },
+    'src-sim':   { title: 'SIM — Sistema de Informação sobre Mortalidade', html: 'Declarações de óbito. Variáveis: causa básica CID-10, causa imediata, data, estabelecimento, dados demográficos.' },
+    'src-esus':  { title: 'e-SUS APS', html: 'Registros de atendimento na Atenção Primária à Saúde. Inclui campos de texto clínico (subjetivo, objetivo, avaliação, plano) que alimentam o pipeline de NLP para identificação de violência.' },
+    'src-cnes':  { title: 'CNES — Cadastro Nacional de Estabelecimentos de Saúde', html: 'Cadastro das unidades de saúde com endereço, tipo e competência. Utilizado para obter as coordenadas geográficas dos estabelecimentos que atenderam as mulheres no linkage → ' + c('pontos_viol_real.qs') + '.' },
+    'bd-viol':   { title: 'BD: tratado_sinan_viol → _publica', html: 'ETL (vital-gbv/scripts) carrega, limpa e padroniza os dados brutos em ' + c('original_sinan_viol') + '. O processamento gera ' + c('tratado_sinan_viol') + ' com nomes normalizados, Soundex, raça decodificada. A função ' + c('criar_view_publica()') + ' cria ' + c('tratado_sinan_viol_publica') + ' removendo colunas sensíveis (nome, nome_mae, ds_obs). É essa view que o app R consulta.' },
+    'bd-iexo':   { title: 'BD: tratado_sinan_iexo → _publica', html: 'Mesmo padrão do SINAN Violência. A view pública ' + c('tratado_sinan_iexo_publica') + ' expõe variáveis de circunstância, agente tóxico, hospitalização — sem dados identificadores.' },
+    'bd-sih':    { title: 'BD: tratado_sih → _publica', html: c('tratado_sih_publica') + ' expõe diagnóstico CID-10, dias de internação, raça/cor, faixa etária — sem nome do paciente.' },
+    'bd-sim':    { title: 'BD: tratado_sim → _publica', html: c('tratado_sim_publica') + ' expõe causa básica CID-10, data do óbito, raça/cor, faixa etária — sem nome ou nome da mãe.' },
+    'bd-esus':   { title: 'BD: tratado_esus_aps → _publica', html: c('tratado_esus_aps_publica') + ' remove todos os campos de texto livre (subjetivo, objetivo, avaliação, plano, nome, e-mail, telefone). O texto clínico bruto vai para o pipeline de NLP antes de ser removido.' },
+    'bd-cnes':   { title: 'BD: estabelecimento_saude', html: 'Tabela carregada do CNES com histórico mensal por ' + c('codigo_cnes') + '. Armazena razão social, endereço, bairro (' + c('id_bairro') + '), tipo de unidade e tipo de estabelecimento. Vinculada a ' + c('registro_linkage') + ' pelo campo ' + c('id_estabelecimento_saude') + '.' },
+    'file-viol': { title: 'df_viol.qs', html: 'Resultado da query em ' + c('tratado_sinan_viol_publica') + ' salvo como arquivo QS (serialização rápida em R). Carregado no início do app em ' + c('app.R') + ' como objeto ' + c('df_viol') + '. Filtro aplicado: ' + c('sg_sexo = F') + '.' },
+    'file-iexo': { title: 'df_iexo.qs', html: 'Query em ' + c('tratado_sinan_iexo_publica') + '. Objeto ' + c('df_iexo') + ' no app. Variável derivada: ' + c('faixa_etaria_padrao') + ' via ' + c('faixa_etaria_func()') + '.' },
+    'file-sih':  { title: 'df_sih.qs', html: 'Query em ' + c('tratado_sih_publica') + '. Objeto ' + c('df_sih') + '. Enriquecido com ' + c('icd_map_ufmg.Rdata') + ' para obter ' + c('causa_resumida') + ' a partir do CID-10.' },
+    'file-sim':  { title: 'df_sim.qs', html: 'Query em ' + c('tratado_sim_publica') + '. Objeto ' + c('df_sim') + '. Enriquecido com ' + c('icd_map_ufmg.Rdata') + '.' },
+    'file-pontos': { title: 'pontos_viol_real.qs', html: 'Mulheres identificadas via linkage probabilístico (SINAN Viol + SIH + SIM + e-SUS APS). Cada linha é uma mulher com coordenada geográfica obtida do endereço mais recente em qualquer sistema, normalizada pelo CNES. Alimenta o mapa interativo da Página 1.' },
+    'file-linkage': { title: 'linkage_compilado.qs', html: 'Dataset resultante do cruzamento de todos os sistemas. Contém: ' + c('par_1') + ' (ID único da pessoa), flags de presença por sistema (' + c('in_sinan_viol') + ', ' + c('in_sih') + ', ' + c('in_sim') + ', ' + c('in_esus') + '), rótulo de violência interpessoal, raça/cor, faixa etária. Alimenta P6, P7 e P8.' },
+    'linkage-band': { title: 'Linkage Probabilístico + NLP + Rotulagem', html: 'Processo que cruza SINAN Viol, SINAN Iexo, SIH, SIM, e-SUS APS e CNES para identificar as mesmas mulheres em diferentes sistemas. Executa o algoritmo de 6 regras (ver "Algoritmo de Linkage"). Textos clínicos do e-SUS passam por Trankit (análise sintática) + LOME (FrameNet semântico) + SVC (classificador). Os rótulos resultantes ficam em ' + c('registro_linkage_rotulo') + '.' },
+    'pg-p1': { title: 'P1 · Mapa da Violência', html: 'Mapa de pontos das mulheres com notificação de violência, georreferenciadas pelo endereço do estabelecimento de saúde. Fonte: ' + c('pontos_viol_real.qs') + '. Filtros: bairro, tipo de violência, faixa etária, raça/cor.' },
+    'pg-p2': { title: 'P2 · SINAN Violência', html: 'Série histórica e distribuições demográficas das notificações de violência. Fonte: ' + c('df_viol.qs') + '. Gráficos: notificações por ano, tipo de violência, faixa etária, raça/cor.' },
+    'pg-p3': { title: 'P3 · SINAN Intoxicação Exógena', html: 'Série histórica e distribuições das notificações de intoxicação. Fonte: ' + c('df_iexo.qs') + '. Gráficos: casos por ano, agente tóxico, circunstância.' },
+    'pg-p4': { title: 'P4 · Hospitalizações', html: 'Internações hospitalares por causas externas. Fonte: ' + c('df_sih.qs') + ' + ' + c('icd_map_ufmg.Rdata') + '. Gráficos: internações por ano, causas CID-10 resumidas.' },
+    'pg-p5': { title: 'P5 · Mortalidade', html: 'Óbitos por causas externas. Fonte: ' + c('df_sim.qs') + ' + ' + c('icd_map_ufmg.Rdata') + '. Gráficos: óbitos por ano, causa básica CID-10.' },
+    'pg-p6': { title: 'P6 · Análise do Linkage', html: 'Comparação de perfil e desfechos entre mulheres com e sem notificação de violência. Fonte: ' + c('linkage_compilado.qs') + '. KPIs, distribuições de faixa etária e raça/cor, causas de óbito e internação por grupo, bubble charts.' },
+    'pg-p7': { title: 'P7 · Linha da Vida', html: 'Trajetória das mulheres nos sistemas de saúde ao longo do tempo. Cada linha é uma mulher; cada evento é uma notificação em qualquer sistema. Fonte: ' + c('linkage_compilado.qs') + '.' },
+    'pg-p8': { title: 'P8 · Subnotificações', html: 'Estimativa de subnotificação por bairro e taxa de subnotificação. Mulheres presentes no e-SUS APS ou SIM/SIH com causas externas mas sem notificação no SINAN. Fonte: ' + c('linkage_compilado.qs') + '.' }
+  };
+  var FL_BOXES = {
+    'src-viol':[4,28,107,34],'src-iexo':[4,74,107,34],'src-sih':[4,120,107,34],
+    'src-sim':[4,166,107,34],'src-esus':[4,212,107,34],'src-cnes':[4,258,107,34],
+    'bd-viol':[123,28,158,34],'bd-iexo':[123,74,158,34],'bd-sih':[123,120,158,34],
+    'bd-sim':[123,166,158,34],'bd-esus':[123,212,158,34],'bd-cnes':[123,258,158,34],
+    'file-viol':[293,28,100,34],'file-iexo':[293,74,100,34],
+    'file-sih':[293,120,100,34],'file-sim':[293,166,100,34],
+    'file-pontos':[293,356,100,30],'file-linkage':[293,396,100,30],
+    'linkage-band':[4,304,289,144],
+    'pg-p2':[406,28,145,34],'pg-p3':[406,74,145,34],'pg-p4':[406,120,145,34],
+    'pg-p5':[406,166,145,34],'pg-p1':[406,316,145,28],'pg-p6':[406,352,145,28],
+    'pg-p7':[406,384,145,28],'pg-p8':[406,416,145,28]
+  };
+  document.getElementById('fl-svg').addEventListener('click', function(e) {
+    var hit = e.target.closest('[data-fl]');
+    if (!hit) return;
+    var key = hit.getAttribute('data-fl');
+    var info = FL_INFO[key]; if (!info) return;
+    document.getElementById('fl-det-ttl').textContent = info.title;
+    document.getElementById('fl-det-txt').innerHTML = info.html;
+    document.getElementById('fl-det').classList.add('open');
+    var b = FL_BOXES[key], r = document.getElementById('fl-sel');
+    r.setAttribute('x', b[0]-3); r.setAttribute('y', b[1]-3);
+    r.setAttribute('width', b[2]+6); r.setAttribute('height', b[3]+6);
+    r.setAttribute('opacity','1');
+  });
 })();
 
 // ── Linkage diagram interaction ──
