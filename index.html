@@ -363,7 +363,7 @@ a:focus-visible { outline:2px solid var(--teal); outline-offset:2px; border-radi
     <div class="iblock">
       <h4>De onde vêm os dados?</h4>
       <ul>
-        <li><strong>Pontos das mulheres:</strong> coordenadas geográficas com informações demográficas e trajetória nos sistemas. Originados do linkage probabilístico.</li>
+        <li><strong>Pontos das mulheres:</strong> coordenadas geográficas com informações demográficas e trajetória nos sistemas. Originados do linkage determinístico.</li>
         <li><strong>Bairros de Recife:</strong> polígonos (shapefile) dos bairros.</li>
         <li><strong>Unidades de saúde:</strong> localização e nome das unidades do CNES.</li>
       </ul>
@@ -376,7 +376,7 @@ a:focus-visible { outline:2px solid var(--teal); outline-offset:2px; border-radi
     <div class="tbl-wrap"><table>
       <thead><tr><th>Coluna / Arquivo</th><th>Tabela de origem</th><th>Descrição</th></tr></thead>
       <tbody>
-        <tr><td>pontos_viol_real.qs</td><td>dados/pontos_viol_real.qs</td><td>Mulheres com ≥1 notificação SINAN; coordenada do endereço mais recente via linkage probabilístico (SINAN Viol + SIH + SIM + e-SUS APS)</td></tr>
+        <tr><td>pontos_viol_real.qs</td><td>dados/pontos_viol_real.qs</td><td>Mulheres com ≥1 notificação SINAN; coordenada do endereço mais recente via linkage determinístico (SINAN Viol + SIH + SIM + e-SUS APS)</td></tr>
         <tr><td>cnes.RData</td><td>dados/cnes.RData</td><td>Cadastro de unidades: <code>cd_cnes_unid_not</code>, <code>NO_FANTASIA</code>, <code>latitude_cnes</code>, <code>longitude_cnes</code></td></tr>
         <tr><td>cnes_join.RData</td><td>dados/cnes_join.RData</td><td>Join CNES ↔ id_unico: <code>cd_cnes_unid_not</code>, <code>texto_final</code></td></tr>
         <tr><td>bairros.geojson</td><td>dados/bairros.geojson</td><td>Polígonos dos bairros do Recife (objeto sf)</td></tr>
@@ -456,6 +456,7 @@ a:focus-visible { outline:2px solid var(--teal); outline-offset:2px; border-radi
   <div class="stage">
     <div class="stage-hd"><span class="stage-num">1 · SQL / ETL</span><h3>Fontes dos dados</h3></div>
     <div class="stage-note">Query na view <code>tratado_sinan_viol_publica</code> (PostgreSQL). Resultado salvo como <code>sinan_viol.qs</code> → objeto <code>df_sinan</code>. Filtro: <code>sg_sexo = F</code>.</div>
+    <div class="stage-note" style="margin-top:8px;border-left-color:var(--teal)"><strong>Padronização de variáveis (ES1):</strong> O ETL padroniza os nomes de colunas entre todas as bases do projeto para que variáveis equivalentes tenham sempre o mesmo nome — ex: nome do paciente → <code>ds_nome_pac</code>, raça/cor → <code>ds_raca</code>, idade em anos → <code>nu_idade_anos</code>. Uma tabela de correspondência é mantida por base de origem nos scripts de ETL (<code>vital-gbv/scripts</code>).</div>
     <div class="tbl-wrap"><table>
       <thead><tr><th>Coluna</th><th>Tabela de origem</th><th>Descrição</th></tr></thead>
       <tbody>
@@ -524,6 +525,7 @@ a:focus-visible { outline:2px solid var(--teal); outline-offset:2px; border-radi
         <tr><td>Tabela cruzada configurável</td><td>Tabela de dupla entrada montada livremente pelo usuário. Download .xlsx.</td><td>tabela_2(df, var_row, var_col) → pivot_wider + adorn_totals</td><td>Ignora filtro_violencias</td></tr>
       </tbody>
     </table></div>
+    <div class="stage-note" style="margin-top:8px;border-left-color:var(--teal)"><strong>Pacote vitaltable (ES2):</strong> As funções <code>tab_1</code>, <code>tab_2</code> e <code>tab_cat_sinan</code> foram desenvolvidas internamente pela Vital Strategies e fazem parte do pacote <code>vitaltable</code>, disponível no GitHub da organização. <code>tab_1</code> gera frequências simples com proporção; <code>tab_2</code> gera tabelas de dupla entrada com proporções por linha ou coluna; <code>tab_cat_sinan</code> é especializada no cruzamento de categorias do SINAN.</div>
   </div>
 
   <div class="stage image">
@@ -779,7 +781,7 @@ a:focus-visible { outline:2px solid var(--teal); outline-offset:2px; border-radi
   <div class="page-intro">
     <div class="iblock">
       <h4>O que é essa página?</h4>
-      <p>Apresenta resultados do linkage probabilístico — cruzamento de SINAN, SIH, SIM e e-SUS APS para identificar as mesmas mulheres em múltiplos sistemas. Inclui rótulos de violência atribuídos por pipeline de NLP (Trankit + LOME + SVC) sobre textos clínicos do e-SUS. Permite comparar perfil e desfechos de mulheres com e sem notificação. Dados de 2019–2025 para comparativos; 2016–2025 para indicadores gerais.</p>
+      <p>Apresenta resultados do linkage determinístico — cruzamento de SINAN, SIH, SIM e e-SUS APS para identificar as mesmas mulheres em múltiplos sistemas. Inclui rótulos de violência atribuídos por pipeline de NLP (Trankit + LOME + SVC) sobre textos clínicos do e-SUS. Permite comparar perfil e desfechos de mulheres com e sem notificação. Dados de 2019–2025 para comparativos; 2016–2025 para indicadores gerais.</p>
     </div>
     <div class="iblock">
       <h4>De onde vêm os dados?</h4>
@@ -889,6 +891,8 @@ a:focus-visible { outline:2px solid var(--teal); outline-offset:2px; border-radi
   <div class="stage">
     <div class="stage-hd"><span class="stage-num">1 · SQL / ETL</span><h3>Fontes dos dados</h3></div>
     <div class="stage-note">Query <code>linha_vida_esus4</code>: <code>registro_linkage</code> INNER JOIN <code>pessoa_publica</code>; filtra mulheres com ≥1 notificação de violência.</div>
+    <div class="stage-note" style="margin-top:8px;border-left-color:var(--teal)"><strong>Tabela registro_linkage (ES9):</strong> Resultado do algoritmo de linkage. Não contém dados pessoais — armazena o ID para reconectar ao sistema de origem, o <code>par_1</code> (ID único da pessoa pós-linkage), e variáveis de análise como datas de início/fim do evento, sistema de origem (<code>banco</code>), idade no evento e flags de violência. É a tabela central que unifica os registros de todos os sistemas.</div>
+    <div class="stage-note" style="margin-top:8px;border-left-color:var(--teal)"><strong>Tabelas pessoa / pessoa_publica (ES10):</strong> Geradas após o linkage — uma linha por pessoa identificada. <code>pessoa</code> contém nome e data de nascimento (dados sensíveis); <code>pessoa_publica</code> é a versão anonimizada com esses campos removidos. O painel usa exclusivamente <code>pessoa_publica</code>, que mantém raça/cor padronizada, faixa etária, bairro do último endereço e contagens de eventos por sistema.</div>
     <div class="tbl-wrap"><table>
       <thead><tr><th>Coluna</th><th>Tabela de origem</th><th>Descrição</th></tr></thead>
       <tbody>
@@ -944,11 +948,16 @@ a:focus-visible { outline:2px solid var(--teal); outline-offset:2px; border-radi
     <div class="tbl-wrap"><table class="lbl">
       <thead><tr><th>Visualização</th><th>O que mostra</th><th>Pré-processamento</th><th>Filtros</th></tr></thead>
       <tbody>
-        <tr><td>Linha da vida</td><td>Cada linha horizontal é uma mulher. Os pontos mostram eventos nos diferentes sistemas ao longo do tempo, com cor e forma por sistema. Eixo X: dt_comum; Eixo Y: id_pareamento (ordenado).</td><td>df_linha_filtrado()</td><td>Todos os filtros</td></tr>
+        <tr><td>Linha da vida</td><td>Cada linha horizontal é uma mulher. Os pontos mostram eventos nos diferentes sistemas ao longo do tempo, com cor e forma por sistema. Eixo X: dt_comum; Eixo Y: id_pareamento (reordenado a cada filtro — ver nota ES11).</td><td>df_linha_filtrado()</td><td>Todos os filtros</td></tr>
         <tr><td>Painel de detalhes (ao clicar)</td><td>Painel lateral exibido ao clicar em um ponto: raça/cor, idade e resumo textual da mulher selecionada.</td><td>—</td><td>—</td></tr>
         <tr><td>Resumo do recorte (KPIs)</td><td>N° de mulheres únicas, total de registros SINAN Violências, máximo / média / mediana de notificações por mulher.</td><td>n_distinct(id_pessoa), nrow(SINAN_VIOL), max/mean/median(n_notif)</td><td>Todos os filtros</td></tr>
       </tbody>
     </table></div>
+  </div>
+
+  <div class="stage blue">
+    <div class="stage-hd"><span class="stage-num">Nota · ES11</span><h3>Reordenação do id_pareamento</h3></div>
+    <div class="stage-note">O eixo Y do gráfico usa <code>id_pareamento</code>, mas esse valor é <strong>recalculado a cada aplicação de filtro</strong> para manter um espaçamento visual coerente entre as linhas. O valor não é exibido ao usuário — é apenas um índice de ordenação interno. Isso significa que a posição vertical de uma mulher pode mudar entre filtros diferentes; a identidade da mulher é mantida pelo <code>id_pessoa</code>, não pela posição no eixo.</div>
   </div>
 
   <div class="stage image">
@@ -1071,7 +1080,7 @@ a:focus-visible { outline:2px solid var(--teal); outline-offset:2px; border-radi
     </div>
     <div class="iblock">
       <h4>Como ler?</h4>
-      <p>Cada linha é um sistema de origem. As setas sólidas mostram o fluxo direto para as páginas P2–P5. O bloco inferior concentra o <strong>linkage probabilístico</strong>, que alimenta P1, P6, P7 e P8 com dados cruzados de todos os sistemas.</p>
+      <p>Cada linha é um sistema de origem. As setas sólidas mostram o fluxo direto para as páginas P2–P5. O bloco inferior concentra o <strong>linkage determinístico</strong>, que alimenta P1, P6, P7 e P8 com dados cruzados de todos os sistemas.</p>
     </div>
   </div>
 
@@ -1205,7 +1214,7 @@ a:focus-visible { outline:2px solid var(--teal); outline-offset:2px; border-radi
         <!-- ── LINKAGE BAND ── -->
         <rect x="4" y="304" width="389" height="144" rx="6"
               fill="rgba(83,74,183,0.06)" stroke="#534AB7" stroke-width="1.2" stroke-dasharray="5 3"/>
-        <text class="flt10" x="154" y="321" text-anchor="middle" fill="#3C3489" font-weight="700">Linkage Probabilístico + NLP + Rotulagem</text>
+        <text class="flt10" x="154" y="321" text-anchor="middle" fill="#3C3489" font-weight="700">linkage determinístico + NLP + Rotulagem</text>
         <text class="flt8"  x="154" y="333" text-anchor="middle" fill="#534AB7">SIM · SINAN Viol · SINAN Iexo · SIH · e-SUS APS · CNES</text>
         <text class="flt8"  x="154" y="345" text-anchor="middle" fill="#534AB7">→ registro_linkage · rotulo · pessoa · sentenca · token</text>
 
@@ -1552,7 +1561,7 @@ a:focus-visible { outline:2px solid var(--teal); outline-offset:2px; border-radi
   <div class="page-intro">
     <div class="iblock">
       <h4>O que é isso?</h4>
-      <p>Além do linkage probabilístico entre sistemas de saúde, o banco de dados contém um pipeline de análise textual e classificação automática de registros. Textos clínicos extraídos dos prontuários do e-SUS APS passam por análise sintática (Trankit), análise semântica com FrameNet (LOME) e classificação por SVC para identificar tipos de violência não capturados pelas notificações formais.</p>
+      <p>Além do linkage determinístico entre sistemas de saúde, o banco de dados contém um pipeline de análise textual e classificação automática de registros. Textos clínicos extraídos dos prontuários do e-SUS APS passam por análise sintática (Trankit), análise semântica com FrameNet (LOME) e classificação por SVC para identificar tipos de violência não capturados pelas notificações formais.</p>
     </div>
     <div class="iblock">
       <h4>Como o resultado chega ao painel?</h4>
@@ -1672,9 +1681,9 @@ a:focus-visible { outline:2px solid var(--teal); outline-offset:2px; border-radi
     'file-iexo': { title: 'df_iexo.qs', html: 'Query em ' + c('tratado_sinan_iexo_publica') + '. Objeto ' + c('df_iexo') + ' no app. Variável derivada: ' + c('faixa_etaria_padrao') + ' via ' + c('faixa_etaria_func()') + '.' },
     'file-sih':  { title: 'df_sih.qs', html: 'Query em ' + c('tratado_sih_publica') + '. Objeto ' + c('df_sih') + '. Enriquecido com ' + c('icd_map_ufmg.Rdata') + ' para obter ' + c('causa_resumida') + ' a partir do CID-10.' },
     'file-sim':  { title: 'df_sim.qs', html: 'Query em ' + c('tratado_sim_publica') + '. Objeto ' + c('df_sim') + '. Enriquecido com ' + c('icd_map_ufmg.Rdata') + '.' },
-    'file-pontos': { title: 'pontos_viol_real.qs', html: 'Mulheres identificadas via linkage probabilístico (SINAN Viol + SIH + SIM + e-SUS APS). Cada linha é uma mulher com coordenada geográfica obtida do endereço mais recente em qualquer sistema, normalizada pelo CNES. Alimenta o mapa interativo da Página 1.' },
+    'file-pontos': { title: 'pontos_viol_real.qs', html: 'Mulheres identificadas via linkage determinístico (SINAN Viol + SIH + SIM + e-SUS APS). Cada linha é uma mulher com coordenada geográfica obtida do endereço mais recente em qualquer sistema, normalizada pelo CNES. Alimenta o mapa interativo da Página 1.' },
     'file-linkage': { title: 'linkage_compilado.qs', html: 'Dataset resultante do cruzamento de todos os sistemas. Contém: ' + c('par_1') + ' (ID único da pessoa), flags de presença por sistema (' + c('in_sinan_viol') + ', ' + c('in_sih') + ', ' + c('in_sim') + ', ' + c('in_esus') + '), rótulo de violência interpessoal, raça/cor, faixa etária. Alimenta P6, P7 e P8.' },
-    'linkage-band': { title: 'Linkage Probabilístico + NLP + Rotulagem', html: 'Processo que cruza SINAN Viol, SINAN Iexo, SIH, SIM, e-SUS APS e CNES para identificar as mesmas mulheres em diferentes sistemas. Executa o algoritmo de 6 regras (ver "Algoritmo de Linkage"). Textos clínicos do e-SUS passam por Trankit (análise sintática) + LOME (FrameNet semântico) + SVC (classificador). Os rótulos resultantes ficam em ' + c('registro_linkage_rotulo') + '.' },
+    'linkage-band': { title: 'linkage determinístico + NLP + Rotulagem', html: 'Processo que cruza SINAN Viol, SINAN Iexo, SIH, SIM, e-SUS APS e CNES para identificar as mesmas mulheres em diferentes sistemas. Executa o algoritmo de 6 regras (ver "Algoritmo de Linkage"). Textos clínicos do e-SUS passam por Trankit (análise sintática) + LOME (FrameNet semântico) + SVC (classificador). Os rótulos resultantes ficam em ' + c('registro_linkage_rotulo') + '.' },
     'pg-p1': { title: 'P1 · Mapa da Violência', html: 'Mapa de pontos das mulheres com notificação de violência, georreferenciadas pelo endereço do estabelecimento de saúde. Fonte: ' + c('pontos_viol_real.qs') + '. Filtros: bairro, tipo de violência, faixa etária, raça/cor.' },
     'pg-p2': { title: 'P2 · SINAN Violência', html: 'Série histórica e distribuições demográficas das notificações de violência. Fonte: ' + c('df_viol.qs') + '. Gráficos: notificações por ano, tipo de violência, faixa etária, raça/cor.' },
     'pg-p3': { title: 'P3 · SINAN Intoxicação Exógena', html: 'Série histórica e distribuições das notificações de intoxicação. Fonte: ' + c('df_iexo.qs') + '. Gráficos: casos por ano, agente tóxico, circunstância.' },
