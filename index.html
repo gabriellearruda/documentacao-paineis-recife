@@ -275,6 +275,9 @@ a:focus-visible { outline:2px solid var(--teal); outline-offset:2px; border-radi
     <div class="nav-link" data-view="p6"><span class="nav-num">06</span>Análise do Linkage</div>
     <div class="nav-link" data-view="p7"><span class="nav-num">07</span>Linha da Vida</div>
     <div class="nav-link" data-view="p8"><span class="nav-num">08</span>Subnotificações</div>
+
+    <div class="nav-label" style="margin-top:6px;">Banco de Dados</div>
+    <div class="nav-link" data-view="arq">Pipeline de Classificação</div>
   </div>
 </nav>
 
@@ -305,6 +308,7 @@ a:focus-visible { outline:2px solid var(--teal); outline-offset:2px; border-radi
       <div class="index-item" data-view="p6"><span class="n">06</span><span class="t">Análise do Linkage</span></div>
       <div class="index-item" data-view="p7"><span class="n">07</span><span class="t">Linha da Vida</span></div>
       <div class="index-item" data-view="p8"><span class="n">08</span><span class="t">Subnotificações</span></div>
+      <div class="index-item" data-view="arq"><span class="n">BD</span><span class="t">Pipeline de Classificação</span></div>
     </div>
   </div>
 </div>
@@ -740,7 +744,7 @@ a:focus-visible { outline:2px solid var(--teal); outline-offset:2px; border-radi
   <div class="page-intro">
     <div class="iblock">
       <h4>O que é essa página?</h4>
-      <p>Apresenta resultados do linkage determinístico — um processo que cruza variáveis identificáveis nos registros de diferentes sistemas de saúde para identificar as mesmas mulheres em múltiplas bases de dados. Permite comparar o perfil e os desfechos de mulheres que tiveram notificação de violência com aquelas que não tiveram. Dados de 2019–2025 para comparativos; 2016–2025 para indicadores gerais.</p>
+      <p>Apresenta resultados do linkage probabilístico — cruzamento de SINAN, SIH, SIM e e-SUS APS para identificar as mesmas mulheres em múltiplos sistemas. Inclui rótulos de violência atribuídos por pipeline de NLP (Trankit + LOME + SVC) sobre textos clínicos do e-SUS. Permite comparar perfil e desfechos de mulheres com e sem notificação. Dados de 2019–2025 para comparativos; 2016–2025 para indicadores gerais.</p>
     </div>
     <div class="iblock">
       <h4>De onde vêm os dados?</h4>
@@ -766,7 +770,7 @@ a:focus-visible { outline:2px solid var(--teal); outline-offset:2px; border-radi
         <tr><td>banco</td><td>base_linkage</td><td>Sistema de origem do registro</td></tr>
         <tr><td>cd_causabas</td><td>base_linkage</td><td>Código CID-10 da causa (óbito ou internação)</td></tr>
         <tr><td>FL_SINAN_VIOL, FL_SINAN_IEXO</td><td>base_linkage</td><td>Flags de presença por tipo de SINAN</td></tr>
-        <tr><td>rotulo_viol_interpessoal</td><td>linkage_compilado</td><td>Flag: tem notificação de violência interpessoal</td></tr>
+        <tr><td>rotulo_viol_interpessoal</td><td>registro_linkage_rotulo → rotulo</td><td>Flag derivada do pipeline de classificação: registro tem rótulo com <code>eh_violencia_interpessoal = true</code> (<a href="#" onclick="event.preventDefault(); document.querySelector('[data-view=arq]').click()">ver Pipeline de Classificação</a>)</td></tr>
         <tr><td>fl_esus, fl_ob_not_externas</td><td>linkage_compilado</td><td>Flags de e-SUS e óbito por causas externas</td></tr>
         <tr><td>raca_cor, faixa_etaria_padrao</td><td>linkage_compilado</td><td>Dados demográficos agregados</td></tr>
         <tr><td>registros, n_pessoas</td><td>linkage_compilado</td><td>Contagens de registros e mulheres únicas</td></tr>
@@ -996,6 +1000,89 @@ a:focus-visible { outline:2px solid var(--teal); outline-offset:2px; border-radi
     <div class="stage-hd"><span class="stage-num">Fluxo de dados</span><h3>Diagrama de fluxo — Página 8</h3></div>
     <div class="fluxo-wrap"><img src="img_pages/page_22.png" alt="Fluxo de Dados — Página 8: Subnotificações"></div>
   </div>
+</div>
+</div>
+
+<!-- ══════════════ ARQUITETURA / PIPELINE ══════════════ -->
+<div id="view-arq" class="view">
+<div class="page-view">
+  <div class="page-header">
+    <div class="page-badge">BD</div>
+    <h2>Pipeline de Classificação</h2>
+  </div>
+  <div class="page-intro">
+    <div class="iblock">
+      <h4>O que é isso?</h4>
+      <p>Além do linkage probabilístico entre sistemas de saúde, o banco de dados contém um pipeline de análise textual e classificação automática de registros. Textos clínicos extraídos dos prontuários do e-SUS APS passam por análise sintática (Trankit), análise semântica com FrameNet (LOME) e classificação por SVC para identificar tipos de violência não capturados pelas notificações formais.</p>
+    </div>
+    <div class="iblock">
+      <h4>Como o resultado chega ao painel?</h4>
+      <p>Cada registro do linkage pode ter um ou mais <strong>rótulos</strong> atribuídos (tabela <code>rotulo</code>), com indicação do método — classificação ML, padrão semântico ou regra SQL. O campo <code>rotulo_viol_interpessoal</code> usado na Página 6 é derivado desses rótulos.</p>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-hd"><span class="stage-num">1 · Rastreamento</span><h3>Sistema de proveniência (origem / execucao)</h3></div>
+    <div class="stage-note">Toda transformação de dados é registrada em <code>origem</code> e <code>execucao</code>, permitindo rastrear qual versão de qual script gerou cada rótulo ou vetor.</div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>origem.nome</th><th>tipo</th><th>O que faz</th></tr></thead>
+      <tbody>
+        <tr><td>script-rotulador</td><td>sql-script</td><td>Rotulagem por regras SQL baseadas em variáveis estruturadas</td></tr>
+        <tr><td>trankit</td><td>dl-pipeline</td><td>Análise sintática e tokenização de textos clínicos</td></tr>
+        <tr><td>LOME</td><td>dl-model</td><td>Análise semântica baseada em frames (FrameNetBrasil)</td></tr>
+        <tr><td>feature-engineering-simples</td><td>sklearn-pipe</td><td>Contagem de features semânticas + TF-IDF + SVD (500 dim)</td></tr>
+        <tr><td>classificador-svc</td><td>sklearn-pipe</td><td>Classificador SVC treinado sobre os vetores</td></tr>
+        <tr><td>rotulador-padrões-semânticos</td><td>sql-script</td><td>Rotulagem por padrões semânticos extraídos da análise textual</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="stage blue">
+    <div class="stage-hd"><span class="stage-num">2 · NLP</span><h3>Análise textual (sentenca → token → frame → anotacao)</h3></div>
+    <div class="stage-note">Textos de campos clínicos do e-SUS APS são segmentados em sentenças e tokens (Trankit), depois anotados com frames semânticos (LOME/FrameNetBrasil). O resultado é armazenado em tabelas relacionais.</div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Tabela</th><th>Conteúdo</th><th>Chave de ligação</th></tr></thead>
+      <tbody>
+        <tr><td><code>sentenca</code></td><td>Segmentos de texto por campo clínico (subjetivo, objetivo, avaliação, plano…)</td><td>id_registro_linkage, id_execucao</td></tr>
+        <tr><td><code>token</code></td><td>Tokens com lema, POS (UD), dependência sintática e posição no texto</td><td>id_sentenca, id_execucao</td></tr>
+        <tr><td><code>frame</code></td><td>Frames semânticos identificados (FrameNetBrasil), com flags de domínio saúde/violência</td><td>id_execucao</td></tr>
+        <tr><td><code>frame_element</code></td><td>Elementos de cada frame (core, periférico, extra-temático)</td><td>id_frame, id_execucao</td></tr>
+        <tr><td><code>lexical_unit</code></td><td>Unidades lexicais que evocam frames, com lema e POS FrameNet</td><td>id_frame, id_execucao</td></tr>
+        <tr><td><code>anotacao</code></td><td>Instâncias de frame evocadas em sentenças específicas</td><td>id_frame, id_sentenca, id_execucao</td></tr>
+        <tr><td><code>anotacao_target</code></td><td>Tokens que evocam o frame (target span)</td><td>id_anotacao, id_token</td></tr>
+        <tr><td><code>anotacao_frame_element</code></td><td>Preenchimento dos elementos do frame com spans de tokens</td><td>id_anotacao, id_frame_element, id_token</td></tr>
+        <tr><td><code>co_ocorrencia</code></td><td>Co-ocorrências de frames em um mesmo token — base para features do classificador</td><td>id_token, id_anotacao_1/2</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-hd"><span class="stage-num">3 · Classificação</span><h3>Rotulagem e vetores (rotulo / registro_linkage_rotulo)</h3></div>
+    <div class="stage-note">Cada registro do linkage pode receber múltiplos rótulos de origens distintas. O campo <code>confianca</code> (0–1) está presente nos rótulos gerados por classificação ML; rótulos por regra têm confiança NULL.</div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Tabela</th><th>Conteúdo</th></tr></thead>
+      <tbody>
+        <tr><td><code>rotulo</code></td><td>Catálogo de rótulos com código, nome, tipo de método (Classificação / Padrão semântico / Regra / Manual) e flags de violência interpessoal / autoprovocada</td></tr>
+        <tr><td><code>rotulo_tipo_violencia</code></td><td>Tipos de violência associados a cada rótulo (Física, Sexual, Psicológica, Negligência, etc.)</td></tr>
+        <tr><td><code>registro_linkage_rotulo</code></td><td>Associação entre registro e rótulo, com referência à execução que gerou o rótulo e score de confiança</td></tr>
+        <tr><td><code>registro_linkage_vetor</code></td><td>Embeddings de 500 dimensões por registro, gerados pelo pipeline de feature engineering (TF-IDF + SVD sobre features semânticas)</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="stage gray">
+    <div class="stage-hd"><span class="stage-num">4 · Geográfico</span><h3>Bairro e estabelecimento de saúde</h3></div>
+    <div class="stage-note"><code>registro_linkage</code> recebeu dois campos adicionais: <code>id_estabelecimento_saude</code> (CNES do atendimento) e <code>id_bairro_pessoa</code> (bairro de residência da mulher). Esses campos alimentam o mapa da Página 1.</div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Tabela</th><th>Conteúdo</th></tr></thead>
+      <tbody>
+        <tr><td><code>bairro</code></td><td>Bairros de Recife com nome e distrito</td></tr>
+        <tr><td><code>estabelecimento_saude</code></td><td>Unidades de saúde por CNES, com tipo, endereço e bairro — histórico mensal</td></tr>
+        <tr><td><code>pessoa</code></td><td>Entidade única por indivíduo com dados demográficos (nascimento, sexo, raça/cor, identidade de gênero)</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
 </div>
 </div>
 
