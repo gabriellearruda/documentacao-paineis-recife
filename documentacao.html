@@ -160,7 +160,7 @@ body {
   padding: 8px 12px; border-radius: 8px; cursor: default;
   border: 1.5px solid transparent; flex: 1; min-width: 120px;
 }
-.bd-chain-step:not(.active) { cursor: pointer; }
+.bd-chain-step { cursor: pointer; }
 .bd-chain-step:not(.active):hover { background: #fff; border-color: var(--border); }
 .bd-chain-step.active { background: var(--ink); border-color: var(--ink); }
 .bd-chain-step.active strong, .bd-chain-step.active small { color: #fff; }
@@ -1056,17 +1056,17 @@ a:focus-visible { outline:2px solid var(--teal); outline-offset:2px; border-radi
   </div>
 
   <div class="bd-chain">
-    <div class="bd-chain-step active">
+    <div class="bd-chain-step active" onclick="showView('fluxo')">
       <span class="bd-chain-num">1</span>
       <div><strong>Fluxo de Dados</strong><small>Visão geral do pipeline</small></div>
     </div>
     <div class="bd-chain-arrow">→</div>
-    <div class="bd-chain-step" data-view="linkage" onclick="showView('linkage')">
+    <div class="bd-chain-step" onclick="showView('linkage')">
       <span class="bd-chain-num">2</span>
       <div><strong>Algoritmo de Linkage</strong><small>Como os sistemas são cruzados</small></div>
     </div>
     <div class="bd-chain-arrow">→</div>
-    <div class="bd-chain-step" data-view="arq" onclick="showView('arq')">
+    <div class="bd-chain-step" onclick="showView('arq')">
       <span class="bd-chain-num">3</span>
       <div><strong>Pipeline de Classificação</strong><small>Como o e-SUS APS é rotulado</small></div>
     </div>
@@ -1077,6 +1077,9 @@ a:focus-visible { outline:2px solid var(--teal); outline-offset:2px; border-radi
     <div class="iblock">
       <h4>O que mostra?</h4>
       <p>Caminho dos dados desde as fontes brutas (SINAN, SIH, SIM, e-SUS APS, CNES), pelo banco de dados PostgreSQL, pelos arquivos R intermediários (<code>.qs</code>), até as páginas do painel. Clique em qualquer bloco para detalhes.</p>
+      <p style="margin-top:8px;font-size:12.5px;background:var(--blue-dim);border-radius:6px;padding:8px 10px;color:var(--ink-mid);line-height:1.5;">
+        <strong>ETL no banco:</strong> cada fonte bruta passa por <code>original_*</code> → <code>tratado_*</code> (dados completos, sensíveis) → <code>tratado_*_publica</code> (view SQL sem dados pessoais). O painel acessa apenas as views <code>_publica</code>.
+      </p>
     </div>
     <div class="iblock">
       <h4>Como ler?</h4>
@@ -1084,11 +1087,41 @@ a:focus-visible { outline:2px solid var(--teal); outline-offset:2px; border-radi
     </div>
   </div>
 
+  <div class="stage blue">
+    <div class="stage-hd"><span class="stage-num">Pipeline de dados · ES8</span><h3>Etapas do fluxo de ponta a ponta</h3></div>
+    <div style="display:flex;gap:0;align-items:stretch;margin-top:.8rem;flex-wrap:wrap;">
+      <div style="flex:1;min-width:110px;background:var(--blue-dim);border:1px solid var(--border);border-radius:8px 0 0 8px;padding:10px 12px;text-align:center;">
+        <div style="font-size:10px;font-weight:700;color:var(--ink);letter-spacing:.05em;margin-bottom:4px;">① RECEBIMENTO</div>
+        <div style="font-size:11px;color:var(--ink-mid);line-height:1.4;">Dados brutos chegam dos sistemas SUS e são carregados em <code>original_*</code> no PostgreSQL</div>
+      </div>
+      <div style="display:flex;align-items:center;padding:0 4px;color:var(--muted);font-size:16px;">→</div>
+      <div style="flex:1;min-width:110px;background:var(--blue-dim);border:1px solid var(--border);padding:10px 12px;text-align:center;">
+        <div style="font-size:10px;font-weight:700;color:var(--ink);letter-spacing:.05em;margin-bottom:4px;">② ETL NO SQL</div>
+        <div style="font-size:11px;color:var(--ink-mid);line-height:1.4;">Scripts ETL limpam, padronizam e geram <code>tratado_*</code> + views <code>_publica</code> sem dados sensíveis</div>
+      </div>
+      <div style="display:flex;align-items:center;padding:0 4px;color:var(--muted);font-size:16px;">→</div>
+      <div style="flex:1;min-width:110px;background:var(--blue-dim);border:1px solid var(--border);padding:10px 12px;text-align:center;">
+        <div style="font-size:10px;font-weight:700;color:var(--ink);letter-spacing:.05em;margin-bottom:4px;">③ LINKAGE em R</div>
+        <div style="font-size:11px;color:var(--ink-mid);line-height:1.4;">Script R puxa as views públicas, executa o algoritmo de linkage e a pipeline NLP, salva em <code>registro_linkage</code></div>
+      </div>
+      <div style="display:flex;align-items:center;padding:0 4px;color:var(--muted);font-size:16px;">→</div>
+      <div style="flex:1;min-width:110px;background:var(--blue-dim);border:1px solid var(--border);padding:10px 12px;text-align:center;">
+        <div style="font-size:10px;font-weight:700;color:var(--ink);letter-spacing:.05em;margin-bottom:4px;">④ ARQUIVOS .qs</div>
+        <div style="font-size:11px;color:var(--ink-mid);line-height:1.4;">Queries finais geram <code>df_*.qs</code>, <code>pontos_viol_real.qs</code> e <code>linkage_compilado.qs</code> prontos para o app</div>
+      </div>
+      <div style="display:flex;align-items:center;padding:0 4px;color:var(--muted);font-size:16px;">→</div>
+      <div style="flex:1;min-width:110px;background:var(--blue-dim);border:1px solid var(--border);border-radius:0 8px 8px 0;padding:10px 12px;text-align:center;">
+        <div style="font-size:10px;font-weight:700;color:var(--ink);letter-spacing:.05em;margin-bottom:4px;">⑤ PAINEL Shiny</div>
+        <div style="font-size:11px;color:var(--ink-mid);line-height:1.4;">App R carrega os arquivos na inicialização — cada página usa apenas o subconjunto necessário</div>
+      </div>
+    </div>
+  </div>
+
   <div class="stage" style="padding:1.2rem 1.4rem 1.4rem;">
     <div class="stage-hd"><span class="stage-num">Diagrama interativo</span><h3>Clique em qualquer bloco para detalhes</h3></div>
     <div style="overflow-x:auto;margin-top:1rem;">
-      <svg id="fl-svg" viewBox="0 0 760 454" xmlns="http://www.w3.org/2000/svg"
-           style="width:100%;max-width:900px;display:block;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;">
+      <svg id="fl-svg" viewBox="0 0 560 454" xmlns="http://www.w3.org/2000/svg"
+           style="width:100%;max-width:700px;display:block;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;">
         <defs>
           <marker id="flarr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
             <path d="M1 1.5L9 5L1 8.5" fill="none" stroke="#8a8a8a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1258,12 +1291,23 @@ a:focus-visible { outline:2px solid var(--teal); outline-offset:2px; border-radi
         <line class="fln" x1="393" y1="137" x2="406" y2="137"/>
         <line class="fln" x1="393" y1="183" x2="406" y2="183"/>
 
-        <!-- ARROWS rows 5-6 (dashed → into linkage band) -->
+        <!-- ARROWS rows 5-6 (solid → BD) -->
         <line class="fln" x1="111" y1="229" x2="123" y2="229"/>
         <line class="fln" x1="111" y1="275" x2="123" y2="275"/>
-        <polyline class="fld2" points="281,229 287,229 287,304"/>
-        <line class="fld" x1="287" y1="296" x2="287" y2="304"/>
-        <polyline class="fld2" points="281,275 287,275 287,304"/>
+
+        <!-- Dashed collector: ALL 6 BD rows → linkage band (right side of BD column) -->
+        <!-- Vertical collector at x=287 from y=58 down to y=304 -->
+        <line class="fld2" x1="287" y1="58"  x2="287" y2="303"/>
+        <!-- Horizontal branches from bottom of each BD box -->
+        <line class="fld2" x1="210" y1="58"  x2="287" y2="58"/>
+        <line class="fld2" x1="210" y1="104" x2="287" y2="104"/>
+        <line class="fld2" x1="210" y1="150" x2="287" y2="150"/>
+        <line class="fld2" x1="210" y1="196" x2="287" y2="196"/>
+        <line class="fld2" x1="281" y1="229" x2="287" y2="229"/>
+        <line class="fld2" x1="281" y1="275" x2="287" y2="275"/>
+        <line class="fld"  x1="287" y1="296" x2="287" y2="304"/>
+        <!-- Small label on collector -->
+        <text font-size="7.5" fill="#534AB7" opacity="0.7" transform="rotate(-90,294,185)" x="294" y="185" text-anchor="middle">também → linkage</text>
 
         <!-- ARROWS linkage files → pages -->
         <line class="fln" x1="393" y1="371" x2="406" y2="330"/>
@@ -1323,17 +1367,17 @@ a:focus-visible { outline:2px solid var(--teal); outline-offset:2px; border-radi
   </div>
 
   <div class="bd-chain">
-    <div class="bd-chain-step" data-view="fluxo" onclick="showView('fluxo')">
+    <div class="bd-chain-step" onclick="showView('fluxo')">
       <span class="bd-chain-num">1</span>
       <div><strong>Fluxo de Dados</strong><small>Visão geral do pipeline</small></div>
     </div>
     <div class="bd-chain-arrow">→</div>
-    <div class="bd-chain-step active">
+    <div class="bd-chain-step active" onclick="showView('linkage')">
       <span class="bd-chain-num">2</span>
       <div><strong>Algoritmo de Linkage</strong><small>Como os sistemas são cruzados</small></div>
     </div>
     <div class="bd-chain-arrow">→</div>
-    <div class="bd-chain-step" data-view="arq" onclick="showView('arq')">
+    <div class="bd-chain-step" onclick="showView('arq')">
       <span class="bd-chain-num">3</span>
       <div><strong>Pipeline de Classificação</strong><small>Como o e-SUS APS é rotulado</small></div>
     </div>
@@ -1541,17 +1585,17 @@ a:focus-visible { outline:2px solid var(--teal); outline-offset:2px; border-radi
   </div>
 
   <div class="bd-chain">
-    <div class="bd-chain-step" data-view="fluxo" onclick="showView('fluxo')">
+    <div class="bd-chain-step" onclick="showView('fluxo')">
       <span class="bd-chain-num">1</span>
       <div><strong>Fluxo de Dados</strong><small>Visão geral do pipeline</small></div>
     </div>
     <div class="bd-chain-arrow">→</div>
-    <div class="bd-chain-step" data-view="linkage" onclick="showView('linkage')">
+    <div class="bd-chain-step" onclick="showView('linkage')">
       <span class="bd-chain-num">2</span>
       <div><strong>Algoritmo de Linkage</strong><small>Como os sistemas são cruzados</small></div>
     </div>
     <div class="bd-chain-arrow">→</div>
-    <div class="bd-chain-step active">
+    <div class="bd-chain-step active" onclick="showView('arq')">
       <span class="bd-chain-num">3</span>
       <div><strong>Pipeline de Classificação</strong><small>Como o e-SUS APS é rotulado</small></div>
     </div>
@@ -1638,7 +1682,7 @@ a:focus-visible { outline:2px solid var(--teal); outline-offset:2px; border-radi
 
 <script>
 (function () {
-  function showView(id) {
+  window.showView = function showView(id) {
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
     var view = document.getElementById('view-' + id);
